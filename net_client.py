@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Aplicações Distribuídas - Projeto 1 - net_client.py
-Grupo: 02
+Grupo: 2
 Números de aluno: 56908, 56954
 """
 
