@@ -26,11 +26,18 @@ else:
 while True:
     comandosSup = ['EXIT', 'LOCK', 'RELEASE'] # lista de comandos suportados
 
-
     try:
         inputLinha = input("comando > ") # l
         args = inputLinha.split()
         comando = args[0].upper()
+
+        if comando in comandosSup:
+            if comando == 'EXIT':
+                exit()
+            elif comando == "LOCK" or comando == "RELEASE":
+                pass
+        else:
+            print("COMANDO DESCONHECIDO")
 
 
 
