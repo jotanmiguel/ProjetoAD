@@ -10,6 +10,7 @@ Números de aluno:
 import sys
 import socket as s
 import net_client
+import time
 
 # Programa principal
 
@@ -26,10 +27,10 @@ else:
 cliente = net_client.server_connection(HOST,PORT)
 
 while True:
-    comandosSup = ['EXIT','LOCK','UNLOCK','STATUS','STATS','PRINT'] # lista de comandos suportados
+    comandosSup = ['EXIT','LOCK','UNLOCK','STATUS','STATS','PRINT','SLEEP'] # lista de comandos suportados
 
     try:
-        inputLinha = input("comando > ")
+        inputLinha = input("Comando: ")
         args = inputLinha.split()
         comando = args[0].upper()
 
@@ -37,9 +38,21 @@ while True:
             if comando == 'EXIT':
                 exit()
 
-            elif comando == "LOCK" or comando == "UNLOCK":
+            elif comando == 'SLEEP':
+                time.sleep(args[1])
+
+            elif comando == "LOCK":
+                if len(args) < 4:
+                    print("MISSING ARGUMENTS")
+                else:
+                    cliente.connect()
+                    resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2]+' '+ args[3])
+                    print('Resposta: %s' % resposta)
+                    cliente.close()
+
+            elif comando == "UNLOCK":
                 if len(args) < 3:
-                    print("NUMERO INSUFICIENTE DE AGRUMENTOS")
+                    print("MISSING ARGUMENTS")
                 else:
                     cliente.connect()
                     resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2])
@@ -48,21 +61,31 @@ while True:
 
             elif comando == 'STATUS':
                 if len(args) < 3:
-                    print("NUMERO INSUFICIENTE DE AGRUMENTOS")
+                    print("MISSING ARGUMENTS")
                 else:
                     pass
 
             elif comando =='STATS':
                 if args[1].upper() in ['K','N','D']:
-                    if len(args) >= 3:
-                        print("ARGUMENTOS A MAIS")
+                    if args[1].upper() == 'K':
+                            cliente.connect()
+                            resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2])
+                            print('Resposta: %s' % resposta)
+                            cliente.close()
                     else:
-                        cliente.connect()
-                        resposta = cliente.send_receive(args[0] +' '+ args[1])
-                        print('Resposta: %s' % resposta)
-                        cliente.close()
+                            cliente.connect()
+                            resposta = cliente.send_receive(args[0] +' '+ args[1])
+                            print('Resposta: %s' % resposta)
+                            cliente.close()
+
+            elif comando == "PRINT":
+                    cliente.connect()
+                    resposta = cliente.send_receive(args[0])
+                    print('Resposta: %s' % resposta)
+                    cliente.close()
+                
         else:
-            print("COMANDO DESCONHECIDO")
+            print("UNKNOWN COMMAND")
 
 
 

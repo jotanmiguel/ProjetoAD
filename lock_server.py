@@ -8,6 +8,10 @@ Números de aluno:
 
 # Zona para fazer importação
 
+import sys
+import sock_utils
+import time
+import socket as s
 
 ###############################################################################
 
@@ -16,6 +20,7 @@ class resource_lock:
         """
         Define e inicializa as propriedades do recurso para os bloqueios.
         """
+        self.resource_id = resource_id
         pass # Remover esta linha e fazer implementação da função
 
     def lock(self, type, client_id, time_limit):
@@ -89,7 +94,7 @@ class lock_pool:
         Define K, o número máximo de bloqueios de escrita permitidos para cada 
         recurso. Ao atingir K bloqueios de escrita, o recurso fica desabilitado.
         """
-        pass # Remover esta linha e fazer implementação da função
+        self.lista = [resource_lock() for x in range(N)]
         
     def clear_expired_locks(self):
         """
@@ -144,3 +149,65 @@ class lock_pool:
 ###############################################################################
 
 # código do programa principal
+
+if len(sys.argv) == 4:
+        if sys.argv[1] == 'localhost':
+            HOST = '127.0.0.1'
+            PORT = int(sys.argv[2])
+            num_recursos = int(sys.argv[3])
+            num_locks = int(sys.argv[4])
+        else:
+            HOST = sys.argv[1]
+            PORT = int(sys.argv[2])
+            num_recursos = int(sys.argv[3])
+            num_locks = int(sys.argv[4])
+else:
+    print("Utilização errada do comando!")
+    exit()
+
+pool = lock_pool(num_recursos, num_locks)
+socket = sock_utils.create_tcp_server_socket(HOST, PORT, 1)
+
+while True:
+
+    final = ''
+
+    (conn_sock,addr) = socket.accept()
+    msg = conn_sock.recv(1024)
+    print('Recebi: %s' %msg)
+
+    separado = msg.split(' ')
+    comando = separado[0].upper() 
+
+    if comando == "LOCK":
+        resp = pool.lock(separado[1],int(separado[2]),int(separado[3]),int(separado[4]))
+        #Fazer ifs
+
+    elif comando == "UNLOCK":
+        resp = pool.unlock(separado[1],int(separado[2]),int(separado[3]))
+        #Fazer ifs
+    
+    elif comando == "STATUS":
+        resp = pool.status(separado[1])
+        final = resp
+    
+    elif comando == "STATS":
+        if separado[1] == "K":
+            resp = pool.stats(separado[1],int(separado[2]))
+            final = resp
+        elif separado[1] == "N":
+            resp = pool.stats(separado[1])
+            final = resp
+        elif separado[1] == "D":
+            resp = pool.stats(separado[1])
+            final = resp
+        
+    elif comando == "PRINT":
+        #por acabar (ler enunciado)       
+        resp = []
+        for x in pool.lista:
+            resp.append(x.status())
+        final = resp
+
+    conn_sock.sendall(resp)
+    conn_sock.close()
