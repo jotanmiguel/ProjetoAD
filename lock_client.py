@@ -15,10 +15,10 @@ import net_client
 
 if len(sys.argv) > 1 and sys.argv[1] == 'localhost':
     HOST = '127.0.0.1'
-    PORT = sys.argv[2]
+    PORT = int(sys.argv[2])
 elif len(sys.argv) > 1:
     HOST = sys.argv[1]
-    PORT = sys.argv[2]
+    PORT = int(sys.argv[2])
 else:
     HOST = '127.0.0.1'
     PORT = 9999
@@ -26,7 +26,7 @@ else:
 cliente = net_client.server_connection(HOST,PORT)
 
 while True:
-    comandosSup = ['EXIT', 'LOCK', 'UNLOCK','STATUS','STATS','PRINT'] # lista de comandos suportados
+    comandosSup = ['EXIT','LOCK','UNLOCK','STATUS','STATS','PRINT'] # lista de comandos suportados
 
     try:
         inputLinha = input("comando > ")
