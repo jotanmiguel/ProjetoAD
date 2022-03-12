@@ -16,7 +16,7 @@ import socket as s
 ###############################################################################
 
 class resource_lock:
-    def __init__(self, resource_id):
+    def __init__(self, resource_id,maxK):
         """
         Define e inicializa as propriedades do recurso para os bloqueios.
         """
@@ -26,7 +26,7 @@ class resource_lock:
         self.writeLockList = []
         self.readLockList = []
         self.writeLockCount = 0
-        self.maxK = -1
+        self.maxK = maxK
 
         pass # Remover esta linha e fazer implementação da função
 
@@ -74,7 +74,7 @@ class resource_lock:
         de escrita (type=W) ou de leitura (type=R), consoante o tipo.
         """
         if type == "W": 
-            if self.status() == "LOCKED-W" and self.writeLockList[0][0] == client_id:
+            if self.lockStatus == 2 and int(self.writeLockList[0][0]) == int(client_id):
                 self.writeLockList.pop(0)
                 self.lockStatus = 0
                 return "OK"
@@ -82,7 +82,7 @@ class resource_lock:
                 return "NOK"
 
         elif type == "R":
-            if self.status() == "LOCKED-R":
+            if self.lockStatus == 1:
                 clientsList = []
                 for x in self.readLockList:
                     clientsList.append(self.readLockList[x][0])
@@ -139,13 +139,13 @@ class resource_lock:
         # R <num do recurso> DISABLED
 
         if self.lockStatus == 0:
-            output += "R "+self.resource_id+" UNLOCKED\n"
+            output += "R "+str(self.resource_id)+" UNLOCKED\n"
         elif self.lockStatus == 1:
-            output += "R "+self.resource_id+" LOCKED-R "+ self.writeLockCount +" "+ len(self.readLockList)+ " " + self.readLockList[len(self.readLockList)-1][1]+"\n"
+            output += "R "+str(self.resource_id)+" LOCKED-R "+ str(self.writeLockCount) +" "+ str(len(self.readLockList))+ " " + str(self.readLockList[len(self.readLockList)-1][1])+"\n"
         elif self.lockStatus == 2: 
-            output += "R "+self.resource_id+" LOCKED-W "+ self.writeLockCount +" "+ self.writeLockList[0][0]+ " " + self.writeLockList[0][1]+"\n"
+            output += "R "+str(self.resource_id)+" LOCKED-W "+ str(self.writeLockCount) +" "+ str(self.writeLockList[0][0])+ " " + str(self.writeLockList[0][1])+"\n"
         else:
-            output += "R "+self.resource_id+" DISABLED\n"  
+            output += "R "+str(self.resource_id)+" DISABLED\n"  
 
         return output
 
@@ -160,7 +160,7 @@ class lock_pool:
         recurso. Ao atingir K bloqueios de escrita, o recurso fica desabilitado.
         """
         self.K = K
-        self.lista = [resource_lock(maxK=self.K) for x in range(N)]
+        self.lista = [resource_lock(x,maxK=self.K) for x in range(1,N)]
         
     def clear_expired_locks(self):
         """
@@ -212,11 +212,11 @@ class lock_pool:
         """
         for x in self.lista:
             if x.resource_id == resource_id:
-                return x.status()
-        if resource_id < 1 or resource_id > len(self.lista):
-            return "UNKNOWN RESOURCE"
+                return str(x.status())
+        if int(resource_id) < 1 or int(resource_id) > len(self.lista):
+            return str("UNKNOWN RESOURCE")
 
-    def stats(self, option, resource_id):
+    def stats(self, option, resource_id=None):
         """
         Obtém o estado do serviço de gestão de bloqueios. Se option for K, retorna <número de 
         bloqueios feitos no recurso resource_id> ou UNKNOWN RESOURCE. Se option for N, retorna 
@@ -234,13 +234,13 @@ class lock_pool:
             for x in self.lista:
                 if x.status() == "LOCKED-R" or x.status() == "LOCKED-W" :
                     count += 1
-                    return count
+            return str(count)
         elif option == "D":
             count = 0
             for x in self.lista:
                 if x.status() == "DISABLED":
                     count += 1
-                    return count
+            return str(count)
 
 
     def __repr__(self):
@@ -261,7 +261,7 @@ class lock_pool:
 
 # código do programa principal
 
-if len(sys.argv) == 4:
+if len(sys.argv) == 5:
         if sys.argv[1] == 'localhost':
             HOST = '127.0.0.1'
             PORT = int(sys.argv[2])
@@ -280,39 +280,46 @@ pool = lock_pool(num_recursos, num_locks)
 socket = sock_utils.create_tcp_server_socket(HOST, PORT, 1)
 
 while True:
+    try:
 
-    final = ''
+        final = ''
 
-    (conn_sock,addr) = socket.accept()
-    msg = conn_sock.recv(1024)
-    print('Recebi: %s' %msg)
+        (conn_sock,addr) = socket.accept()
+        msg = conn_sock.recv(1024)
+        print('Recebi: %s' %msg)
 
-    separado = msg.split(' ')
-    comando = separado[0].upper() 
+        separado = msg.decode().split()
+        comando = separado[0].upper() 
 
-    if comando == "LOCK":
-        resp = pool.lock(separado[1],int(separado[2]),int(separado[3]),int(separado[4]))
+        if comando == "LOCK":
+            resp = pool.lock(separado[1],int(separado[2]),int(separado[3]),int(separado[4]))
+            final += resp
 
-    elif comando == "UNLOCK":
-        resp = pool.unlock(separado[1],int(separado[2]),int(separado[3]))
-    
-    elif comando == "STATUS":
-        resp = pool.status(separado[1])
-        final = resp
-    
-    elif comando == "STATS":
-        if separado[1] == "K":
-            resp = pool.stats(separado[1],int(separado[2]))
-            final = resp
-        elif separado[1] == "N":
-            resp = pool.stats(separado[1])
-            final = resp
-        elif separado[1] == "D":
-            resp = pool.stats(separado[1])
-            final = resp
+        elif comando == "UNLOCK":
+            resp = pool.unlock(separado[1],int(separado[2]),int(separado[3]))
+            final += resp
         
-    elif comando == "PRINT":      
-        final = pool.__repr__()
+        elif comando == "STATUS":
+            resp = pool.status(separado[1])
+            final += resp
+        
+        elif comando == "STATS":
+            if separado[1] == "K":
+                resp = pool.stats(separado[1],int(separado[2]))
+                final += resp
+            elif separado[1] == "N":
+                resp = pool.stats(separado[1])
+                final += resp
+            elif separado[1] == "D":
+                resp = pool.stats(separado[1])
+                final += resp
+            
+        elif comando == "PRINT":      
+            final += pool.__repr__()
 
-    conn_sock.sendall(final)
-    conn_sock.close()
+        conn_sock.sendall(final.encode())
+        conn_sock.close()
+        
+    except KeyboardInterrupt:
+        print("\n KeyboardInterrupt")
+        exit()

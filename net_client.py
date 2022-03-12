@@ -36,7 +36,7 @@ class server_connection:
         Envia os dados contidos em data para a socket da ligação, e retorna
         a resposta recebida pela mesma socket.
         """
-        self.sock.sendall(data)
+        self.sock.sendall(data.encode())
         reply = self.sock.recv(1024)
         return reply
 
