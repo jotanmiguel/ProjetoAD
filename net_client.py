@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Aplicações Distribuídas - Projeto 1 - net_client.py
-Grupo:
-Números de aluno:
+Grupo: 02
+Números de aluno: 56908, 56954
 """
 
 # zona para fazer importação
@@ -20,23 +20,28 @@ class server_connection:
         """
         Inicializa a classe com parâmetros para funcionamento futuro.
         """
-        pass # Remover esta linha e fazer implementação da função
-        
+        self.address = address
+        self.port = port
+        self.sock = None
+
     def connect(self):
         """
         Estabelece a ligação ao servidor especificado na inicialização.
         """
-        pass # Remover esta linha e fazer implementação da função
+        self.sock = sock_utils.create_tcp_client_socket(self.address, self.port)
+        self.sock.connect((self.address, self.port))
 
     def send_receive(self, data):
         """
         Envia os dados contidos em data para a socket da ligação, e retorna
         a resposta recebida pela mesma socket.
         """
-        pass # Remover esta linha e fazer implementação da função
-    
+        self.sock.sendall(data)
+        reply = self.sock.recv(1024)
+        return reply
+
     def close(self):
         """
         Termina a ligação ao servidor.
         """
-        pass # Remover esta linha e fazer implementação da função
+        self.sock.close()
