@@ -30,7 +30,7 @@ while True:
     try:
         inputLinha = input("comando > ") # l
         args = inputLinha.split()
-        comando = args[2]
+        comando = args[0].upper()
 
 
 
