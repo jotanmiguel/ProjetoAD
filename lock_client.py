@@ -40,7 +40,10 @@ while True:
                 exit()
 
             elif comando == 'SLEEP':
-                time.sleep(args[1])
+                if len(args) < 2:
+                    print("MISSING ARGUMENTS")
+                else:
+                    time.sleep(args[1])
 
             elif comando == "LOCK":
                 if len(args) < 4:
