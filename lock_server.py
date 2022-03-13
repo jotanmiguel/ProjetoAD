@@ -21,7 +21,7 @@ class resource_lock:
         Define e inicializa as propriedades do recurso para os bloqueios.
         """
         self.resource_id = resource_id
-        self.lockStatus = 0 #0- unlocked 1-locked read 2-locked write 3-disabled
+        self.lockStatus = 0 #0 - Unlocked 1 - Locked Read 2 - Locked Write 3 - Disabled
         self.clientLockId = None
         self.writeLockList = []
         self.readLockList = []
@@ -38,8 +38,8 @@ class resource_lock:
         if type == "W":
 
             if self.status() == "UNLOCKED" and self.writeLockCount < self.maxK:
+                self.writeLockCount += 1                
                 self.lockStatus = 2
-                self.writeLockCount += 1
                 deadline = time.time() + time_limit
                 self.writeLockList.append((client_id,deadline))
                 return "OK"
@@ -72,28 +72,34 @@ class resource_lock:
         Retorna OK ou NOK.O desbloqueio pode ser relacionado a bloqueios 
         de escrita (type=W) ou de leitura (type=R), consoante o tipo.
         """
-        if type == "W": 
+        if type == "W":
+
             if self.lockStatus == 2 and int(self.writeLockList[0][0]) == int(client_id) and self.writeLockCount < self.maxK:
                 self.writeLockList.pop(0)
                 self.lockStatus = 0
                 return "OK"
+
             elif self.lockStatus == 2 and self.writeLockCount == self.maxK and int(self.writeLockList[0][0]) == int(client_id):
                 self.writeLockList.pop(0)
                 self.lockStatus = 3
                 return "OK"
+
             else:
                 return "NOK"
 
         elif type == "R":
+
             if self.lockStatus == 1:
                 clientsList = []
                 for x in range(len(self.readLockList)):
                     clientsList.append(self.readLockList[x][0])
+
                 if client_id in clientsList:
                     self.readLockList.pop(clientsList.index(client_id))
                     if len(self.readLockList) == 0:
                         self.lockStatus = 0
                     return "OK"
+
                 else:
                     return "NOK"
 
@@ -177,16 +183,22 @@ class lock_pool:
         """
         for x in self.lista:
             if len(x.writeLockList) > 0:
+
                 if time.time() > x.writeLockList[0][1] and x.writeLockCount < x.maxK:
                     x.writeLockList = []
                     x.lockStatus = 0
+
                 elif time.time() > x.writeLockList[0][1] and x.writeLockCount == x.maxK:
                     x.writeLockList = []
                     x.lockStatus = 3
+
             elif len(x.readLockList) > 0:
-                for y in range(len(x.readLockList)-1):
+
+                for y in range(len(x.readLockList)):
+
                     if time.time() > x.readLockList[y][1]:
                         x.readLockList.pop(y)
+
                         if len(x.readLockList) == 0:
                             x.lockStatus = 0
 
@@ -234,18 +246,24 @@ class lock_pool:
         <número de recursos desabilitados>
         """
         if option == "K":
+
             for x in self.lista:
                 if x.resource_id == resource_id:
                     return str(x.stats())
+
             if resource_id < 1 or resource_id > len(self.lista):
                 return "UNKNOWN RESOURCE"
+
         elif option == "N":
+
             count = 0
             for x in self.lista:
                 if x.status() == "UNLOCKED" :
                     count += 1
             return str(count)
+
         elif option == "D":
+
             count = 0
             for x in self.lista:
                 if x.status() == "DISABLED":

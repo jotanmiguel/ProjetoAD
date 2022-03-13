@@ -14,18 +14,23 @@ import time
 
 # Programa principal
 
-if len(sys.argv) > 1 and sys.argv[2] == 'localhost':
+if len(sys.argv) > 2 and sys.argv[2] == 'localhost':
     HOST = '127.0.0.1'
     PORT = int(sys.argv[3])
-elif len(sys.argv) > 1:
+    ID = sys.argv[1]
+elif len(sys.argv) > 2:
     HOST = sys.argv[2]
     PORT = int(sys.argv[3])
-else:
+    ID = sys.argv[1]
+elif len(sys.argv) == 2:
     HOST = '127.0.0.1'
     PORT = 9999
+    ID = sys.argv[1]
+else:
+    print("MISSING CLIENT ID")
+    exit()
 
 cliente = net_client.server_connection(HOST,PORT)
-clientid = sys.argv[1]
 
 while True:
     comandosSup = ['EXIT','LOCK','UNLOCK','STATUS','STATS','PRINT','SLEEP']
@@ -50,7 +55,7 @@ while True:
                     print("MISSING ARGUMENTS")
                 else:
                     cliente.connect()
-                    resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2]+' '+ clientid+' '+args[3])
+                    resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2]+' '+ ID +' '+args[3])
                     print('Resposta: %s' % resposta)
                     cliente.close()
 
@@ -59,7 +64,7 @@ while True:
                     print("MISSING ARGUMENTS")
                 else:
                     cliente.connect()
-                    resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2]+' '+ clientid)
+                    resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2]+' '+ ID)
                     print('Resposta: %s' % resposta)
                     cliente.close()
 
