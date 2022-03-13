@@ -28,7 +28,7 @@ cliente = net_client.server_connection(HOST,PORT)
 clientid = sys.argv[1]
 
 while True:
-    comandosSup = ['EXIT','LOCK','UNLOCK','STATUS','STATS','PRINT','SLEEP'] # lista de comandos suportados
+    comandosSup = ['EXIT','LOCK','UNLOCK','STATUS','STATS','PRINT','SLEEP']
 
     try:
         inputLinha = input("Comando: ")
@@ -69,7 +69,7 @@ while True:
                     print('Resposta: %s' % resposta)
                     cliente.close()
 
-            elif comando =='STATS':
+            elif comando == 'STATS':
                 if len(args) < 2:
                     print("MISSING ARGUMENTS")
                 elif args[1].upper() in ['K','N','D']:
