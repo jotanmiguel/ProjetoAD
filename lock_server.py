@@ -28,7 +28,6 @@ class resource_lock:
         self.writeLockCount = 0
         self.maxK = maxK
 
-        pass # Remover esta linha e fazer implementação da função
 
     def lock(self, type, client_id, time_limit):
         """
@@ -79,6 +78,10 @@ class resource_lock:
             if self.lockStatus == 2 and int(self.writeLockList[0][0]) == int(client_id):
                 self.writeLockList.pop(0)
                 self.lockStatus = 0
+                return "OK"
+            elif self.lockStatus == 3 and int(self.writeLockList[0][0]) == int(client_id):
+                self.writeLockList.pop(0)
+                self.lockStatus = 3
                 return "OK"
             else:
                 return "NOK"
@@ -234,7 +237,7 @@ class lock_pool:
         elif option == "N":
             count = 0
             for x in self.lista:
-                if x.status() == "LOCKED-R" or x.status() == "LOCKED-W" :
+                if x.status() == "UNLOCKED" :
                     count += 1
             return str(count)
         elif option == "D":
@@ -289,6 +292,8 @@ while True:
         (conn_sock,addr) = socket.accept()
         msg = conn_sock.recv(1024)
         print('Recebi: %s' %msg)
+
+        pool.clear_expired_locks()
 
         separado = msg.decode().split()
         comando = separado[0].upper() 
