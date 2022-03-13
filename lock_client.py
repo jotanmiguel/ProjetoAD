@@ -43,7 +43,7 @@ while True:
                 if len(args) < 2:
                     print("MISSING ARGUMENTS")
                 else:
-                    time.sleep(args[1])
+                    time.sleep(int(args[1]))
 
             elif comando == "LOCK":
                 if len(args) < 4:

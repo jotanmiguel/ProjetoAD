@@ -16,7 +16,7 @@ import socket as s
 ###############################################################################
 
 class resource_lock:
-    def __init__(self, resource_id,maxK):
+    def __init__(self, resource_id):
         """
         Define e inicializa as propriedades do recurso para os bloqueios.
         """
@@ -26,7 +26,7 @@ class resource_lock:
         self.writeLockList = []
         self.readLockList = []
         self.writeLockCount = 0
-        self.maxK = maxK
+        self.maxK = 0
 
 
     def lock(self, type, client_id, time_limit):
@@ -42,8 +42,6 @@ class resource_lock:
                 self.writeLockCount += 1
                 deadline = time.time() + time_limit
                 self.writeLockList.append((client_id,deadline))
-                if self.writeLockCount == self.maxK:
-                    self.lockStatus = 3
                 return "OK"
                 
             elif self.status() == "LOCKED-W" or self.status() == "LOCKED-R" or self.status() == "DISABLED":
@@ -75,11 +73,11 @@ class resource_lock:
         de escrita (type=W) ou de leitura (type=R), consoante o tipo.
         """
         if type == "W": 
-            if self.lockStatus == 2 and int(self.writeLockList[0][0]) == int(client_id):
+            if self.lockStatus == 2 and int(self.writeLockList[0][0]) == int(client_id) and self.writeLockCount < self.maxK:
                 self.writeLockList.pop(0)
                 self.lockStatus = 0
                 return "OK"
-            elif self.lockStatus == 3 and int(self.writeLockList[0][0]) == int(client_id):
+            elif self.lockStatus == 2 and self.writeLockCount == self.maxK and int(self.writeLockList[0][0]) == int(client_id):
                 self.writeLockList.pop(0)
                 self.lockStatus = 3
                 return "OK"
@@ -89,14 +87,16 @@ class resource_lock:
         elif type == "R":
             if self.lockStatus == 1:
                 clientsList = []
-                for x in self.readLockList:
+                for x in range(len(self.readLockList)):
                     clientsList.append(self.readLockList[x][0])
                 if client_id in clientsList:
                     self.readLockList.pop(clientsList.index(client_id))
+                    if len(self.readLockList) == 0:
+                        self.lockStatus = 0
+                    return "OK"
                 else:
                     return "NOK"
-                if len(self.readLockList) == 0:
-                    self.lockStatus = 0
+
                       
 
     def status(self):
@@ -165,7 +165,9 @@ class lock_pool:
         recurso. Ao atingir K bloqueios de escrita, o recurso fica desabilitado.
         """
         self.K = K
-        self.lista = [resource_lock(x,maxK=self.K) for x in range(1,N+1)]
+        self.lista = [resource_lock(x) for x in range(1,N+1)]
+        for x in self.lista:
+            x.maxK = self.K
         
     def clear_expired_locks(self):
         """
@@ -175,11 +177,14 @@ class lock_pool:
         """
         for x in self.lista:
             if len(x.writeLockList) > 0:
-                if time.time() > x.writeLockList[0][1]:
+                if time.time() > x.writeLockList[0][1] and x.writeLockCount < x.maxK:
                     x.writeLockList = []
                     x.lockStatus = 0
+                elif time.time() > x.writeLockList[0][1] and x.writeLockCount == x.maxK:
+                    x.writeLockList = []
+                    x.lockStatus = 3
             elif len(x.readLockList) > 0:
-                for y in len(x.readLockList):
+                for y in range(len(x.readLockList)-1):
                     if time.time() > x.readLockList[y][1]:
                         x.readLockList.pop(y)
                         if len(x.readLockList) == 0:
