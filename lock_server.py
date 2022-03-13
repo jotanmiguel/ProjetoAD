@@ -43,14 +43,12 @@ class resource_lock:
                 self.writeLockCount += 1
                 deadline = time.time() + time_limit
                 self.writeLockList.append((client_id,deadline))
+                if self.writeLockCount == self.maxK:
+                    self.lockStatus = 3
                 return "OK"
                 
             elif self.status() == "LOCKED-W" or self.status() == "LOCKED-R" or self.status() == "DISABLED":
                 return "NOK"
-
-            elif self.writeLockCount == self.maxK:
-                    self.lockStatus = 3
-                    return "NOK"
 
         elif type == "R":
 
