@@ -287,8 +287,6 @@ socket = sock_utils.create_tcp_server_socket(HOST, PORT, 1)
 while True:
     try:
 
-        final = ''
-
         (conn_sock,addr) = socket.accept()
         msg = conn_sock.recv(1024)
         print('Recebi: %s' %msg)
@@ -300,31 +298,28 @@ while True:
 
         if comando == "LOCK":
             resp = pool.lock(separado[1],int(separado[2]),int(separado[3]),int(separado[4]))
-            final += resp
 
         elif comando == "UNLOCK":
             resp = pool.unlock(separado[1],int(separado[2]),int(separado[3]))
-            final += resp
         
         elif comando == "STATUS":
             resp = pool.status(separado[1])
-            final += resp
         
         elif comando == "STATS":
             if separado[1] == "K":
                 resp = pool.stats(separado[1],int(separado[2]))
-                final += resp
+
             elif separado[1] == "N":
                 resp = pool.stats(separado[1])
-                final += resp
+
             elif separado[1] == "D":
                 resp = pool.stats(separado[1])
-                final += resp
+
             
         elif comando == "PRINT":      
-            final += pool.__repr__()
+            resp = pool.__repr__()
 
-        conn_sock.sendall(final.encode())
+        conn_sock.sendall(resp.encode())
         conn_sock.close()
         
     except KeyboardInterrupt:
