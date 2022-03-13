@@ -47,7 +47,7 @@ while True:
                     print("MISSING ARGUMENTS")
                 else:
                     cliente.connect()
-                    resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ clientid+' '+ args[2]+' '+args[3])
+                    resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2]+' '+ clientid+' '+args[3])
                     print('Resposta: %s' % resposta)
                     cliente.close()
 
@@ -70,17 +70,25 @@ while True:
                     cliente.close()
 
             elif comando =='STATS':
-                if args[1].upper() in ['K','N','D']:
+                if len(args) < 2:
+                    print("MISSING ARGUMENTS")
+                elif args[1].upper() in ['K','N','D']:
                     if args[1].upper() == 'K':
-                            cliente.connect()
-                            resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2])
-                            print('Resposta: %s' % resposta)
-                            cliente.close()
+                            if len(args) < 3:
+                                print("MISSING ARGUMENTS")
+                            else:
+                                cliente.connect()
+                                resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2])
+                                print('Resposta: %s' % resposta)
+                                cliente.close()
                     else:
-                            cliente.connect()
-                            resposta = cliente.send_receive(args[0] +' '+ args[1])
-                            print('Resposta: %s' % resposta)
-                            cliente.close()
+                            if len(args) < 2:
+                                print("MISSING ARGUMENTS")
+                            else:
+                                cliente.connect()
+                                resposta = cliente.send_receive(args[0] +' '+ args[1])
+                                print('Resposta: %s' % resposta)
+                                cliente.close()
 
             elif comando == "PRINT":
                     cliente.connect()

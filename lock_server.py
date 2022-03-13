@@ -48,6 +48,10 @@ class resource_lock:
             elif self.status() == "LOCKED-W" or self.status() == "LOCKED-R" or self.status() == "DISABLED":
                 return "NOK"
 
+            elif self.writeLockCount == self.maxK:
+                    self.lockStatus = 3
+                    return "NOK"
+
         elif type == "R":
 
             if self.status() == "UNLOCKED" or self.status() == "LOCKED-R":
@@ -139,13 +143,13 @@ class resource_lock:
         # R <num do recurso> DISABLED
 
         if self.lockStatus == 0:
-            output += "R "+str(self.resource_id)+" UNLOCKED\n"
+            output += "R "+str(self.resource_id)+" UNLOCKED "+str(self.writeLockCount)+"\n" 
         elif self.lockStatus == 1:
             output += "R "+str(self.resource_id)+" LOCKED-R "+ str(self.writeLockCount) +" "+ str(len(self.readLockList))+ " " + str(self.readLockList[len(self.readLockList)-1][1])+"\n"
         elif self.lockStatus == 2: 
             output += "R "+str(self.resource_id)+" LOCKED-W "+ str(self.writeLockCount) +" "+ str(self.writeLockList[0][0])+ " " + str(self.writeLockList[0][1])+"\n"
         else:
-            output += "R "+str(self.resource_id)+" DISABLED\n"  
+            output += "R "+str(self.resource_id)+" DISABLED "+str(self.writeLockCount)+"\n"   
 
         return output
 
@@ -160,7 +164,7 @@ class lock_pool:
         recurso. Ao atingir K bloqueios de escrita, o recurso fica desabilitado.
         """
         self.K = K
-        self.lista = [resource_lock(x,maxK=self.K) for x in range(1,N)]
+        self.lista = [resource_lock(x,maxK=self.K) for x in range(1,N+1)]
         
     def clear_expired_locks(self):
         """
@@ -211,7 +215,7 @@ class lock_pool:
         DISABLED ou UNKNOWN RESOURCE.
         """
         for x in self.lista:
-            if x.resource_id == resource_id:
+            if int(x.resource_id) == int(resource_id):
                 return str(x.status())
         if int(resource_id) < 1 or int(resource_id) > len(self.lista):
             return str("UNKNOWN RESOURCE")
@@ -226,7 +230,7 @@ class lock_pool:
         if option == "K":
             for x in self.lista:
                 if x.resource_id == resource_id:
-                    return x.stats()
+                    return str(x.stats())
             if resource_id < 1 or resource_id > len(self.lista):
                 return "UNKNOWN RESOURCE"
         elif option == "N":
