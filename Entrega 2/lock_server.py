@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-Aplicações Distribuídas - Projeto 1 - lock_server.py
+Aplicações Distribuídas - Projeto 2 - lock_server.py
 Grupo: 2
 Números de aluno: 56908, 56954
 """
