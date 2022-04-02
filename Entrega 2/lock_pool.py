@@ -97,8 +97,6 @@ class resource_lock:
                 else:
                     return False
 
-                      
-
     def status(self):
         """
         Obtém o estado do recurso. Retorna LOCKED-W ou LOCKED-R ou UNLOCKED 
@@ -112,7 +110,6 @@ class resource_lock:
             return "LOCKED-W"
         elif self.lockStatus == 3:
             return "DISABLED"
-
 
     def stats(self):
         """
@@ -153,8 +150,6 @@ class resource_lock:
             output += "R "+str(self.resource_id)+" DISABLED "+str(self.writeLockCount)+"\n"   
 
         return output
-
-###############################################################################
 
 class lock_pool:
     def __init__(self, N, K):
