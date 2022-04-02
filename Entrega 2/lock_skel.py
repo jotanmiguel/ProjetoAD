@@ -7,11 +7,13 @@ Números de aluno: 56908, 56954
 """
 
 import pickle
+from tkinter import RIDGE
 from lock_pool import lock_pool
 class ListSkeleton:
-    def __init__(self, tLim):
+    def __init__(self, nResources, tLim, maxK):
+        self.maxK = maxK
         self.tLim = tLim
-        self.pool = lock_pool(None)
+        self.pool = lock_pool(nResources, maxK)
 
     def processMessage(self, msg_bytes):
         pedido = self.bytesToList(msg_bytes)
@@ -22,20 +24,31 @@ class ListSkeleton:
         else:
             cmd = pedido[0]
             if cmd == 10:
-                cId = pedido[4]
-                resposta.append('11')
+                cId = pedido[2]
+                rId = pedido[4]
+                tLim = pedido[3]
+                type = pedido[1]
+                resposta = [11,self.pool.lock(type, rId, cId, tLim)]
             elif cmd == 20:
-                resposta.append('21')
+                cId = pedido[2]
+                rId = pedido[3]
+                type = pedido[1]
+                resposta = [21,self.pool.unlock(type, rId, cId)]
             elif cmd == 30:
-                resposta.append('31')
+                rId = pedido[1]
+                resposta = [31,self.pool.status(rId)]
             elif cmd == 40:
-                resposta.append('41')
+                rId = pedido[2]
+                opt = pedido[1]
+                resposta = [41,self.pool.stats(opt, rId)]
             elif cmd == 50:
-                resposta.append('51')
+                opt = pedido[1]
+                resposta = [51, self.pool.stats(opt)]
             elif cmd == 60:
-                resposta.append('61')
+                opt = pedido[1]
+                resposta = [61, self.pool.stats(opt)]
             elif cmd == 70:
-                resposta.append('71')
+                resposta = [71, self.pool.__repr__()]
             else:
                 resposta.append('INVALID MESSAGE')
 

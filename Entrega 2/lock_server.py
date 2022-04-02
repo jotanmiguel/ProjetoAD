@@ -33,7 +33,6 @@ socket = sock_utils.create_tcp_server_socket(HOST, PORT, 1)
 
 while True:
     try:
-
         (conn_sock,addr) = socket.accept()
         msg = conn_sock.recv(1024)
         separado = pickle.loads(msg)
@@ -52,7 +51,6 @@ while True:
         elif comando == 30:
             resp = [31,pool.status(separado[1])]
         
-
         elif comando == 40:
             resp = [41,pool.stats("K",int(separado[1]))]
 
@@ -61,10 +59,11 @@ while True:
 
         elif comando == 60:
             resp = [61,pool.stats("D")]
-
             
         elif comando == 70:      
             resp = [71,pool.__repr__()]
+
+        print('Enviei: ',resp)
 
         conn_sock.sendall(pickle.dumps(resp, -1) )
         conn_sock.close()

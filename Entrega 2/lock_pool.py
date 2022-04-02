@@ -20,10 +20,10 @@ class resource_lock:
         self.writeLockList = []
         self.readLockList = []
         self.writeLockCount = 0
-        self.maxK = 0
+        self.maxK = 5
 
 
-    def lock(self, type, client_id, time_limit):
+    def lock(self, type, time_limit, client_id):
         """
         Tenta bloquear o recurso pelo cliente client_id, durante time_limit 
         segundos. Retorna OK ou NOK. O bloqueio pode ser de escrita (type=W)
@@ -32,8 +32,11 @@ class resource_lock:
         if type == "W":
 
             if self.status() == "UNLOCKED" and self.writeLockCount < self.maxK:
+                print("A ", type, time_limit, client_id)
                 self.writeLockCount += 1                
                 self.lockStatus = 2
+                print(self.lockStatus)
+                self.clientLockId = client_id
                 deadline = time.time() + time_limit
                 self.writeLockList.append((client_id,deadline))
                 return True
@@ -141,13 +144,13 @@ class resource_lock:
         # R <num do recurso> DISABLED
 
         if self.lockStatus == 0:
-            output += "R "+str(self.resource_id)+" UNLOCKED "+str(self.writeLockCount)+"\n" 
+            output += "R "+str(self.resource_id)+" UNLOCKED "+str(self.writeLockCount)+" | " 
         elif self.lockStatus == 1:
-            output += "R "+str(self.resource_id)+" LOCKED-R "+ str(self.writeLockCount) +" "+ str(len(self.readLockList))+ " " + str(self.readLockList[len(self.readLockList)-1][1])+"\n"
+            output += "R "+str(self.resource_id)+" LOCKED-R "+ str(self.writeLockCount) +" "+ str(len(self.readLockList))+ " " + str(self.readLockList[len(self.readLockList)-1][1])+" | "
         elif self.lockStatus == 2: 
-            output += "R "+str(self.resource_id)+" LOCKED-W "+ str(self.writeLockCount) +" "+ str(self.writeLockList[0][0])+ " " + str(self.writeLockList[0][1])+"\n"
+            output += "R "+str(self.resource_id)+" LOCKED-W "+ str(self.writeLockCount) +" "+ str(self.writeLockList[0][0])+ " " + str(self.writeLockList[0][1])+" | "
         else:
-            output += "R "+str(self.resource_id)+" DISABLED "+str(self.writeLockCount)+"\n"   
+            output += "R "+str(self.resource_id)+" DISABLED "+str(self.writeLockCount)+" | "   
 
         return output
 
@@ -238,7 +241,7 @@ class lock_pool:
 
             for x in self.lista:
                 if x.resource_id == resource_id:
-                    return str(x.stats())
+                    return x.stats()
 
             if resource_id < 1 or resource_id > len(self.lista):
                 return None
@@ -249,7 +252,7 @@ class lock_pool:
             for x in self.lista:
                 if x.status() == "UNLOCKED" :
                     count += 1
-            return str(count)
+            return count
 
         elif option == "D":
 
@@ -257,7 +260,7 @@ class lock_pool:
             for x in self.lista:
                 if x.status() == "DISABLED":
                     count += 1
-            return str(count)
+            return count
 
 
     def __repr__(self):

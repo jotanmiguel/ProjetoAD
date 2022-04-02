@@ -56,7 +56,7 @@ while True:
                     print("MISSING ARGUMENTS")
                 else:
                     cliente.connect()
-                    msg = [10,args[1],args[2],args[3],ID]
+                    msg = [10,args[1],int(args[2]),int(args[3]),int(ID)]
                     msg_bytes = pickle.dumps(msg, -1) 
                     resposta = cliente.send_receive(msg_bytes)
                     print('Resposta: ',pickle.loads(resposta))
@@ -67,7 +67,7 @@ while True:
                     print("MISSING ARGUMENTS")
                 else:
                     cliente.connect()
-                    msg = [20,args[1],args[2],ID]
+                    msg = [20,int(args[1]),int(args[2]),int(ID)]
                     msg_bytes = pickle.dumps(msg, -1) 
                     resposta = cliente.send_receive(msg_bytes)
                     print('Resposta: ',pickle.loads(resposta))
@@ -78,7 +78,7 @@ while True:
                     print("MISSING ARGUMENTS")
                 else:
                     cliente.connect()
-                    msg = [30,args[1]]
+                    msg = [30,int(args[1])]
                     msg_bytes = pickle.dumps(msg, -1) 
                     resposta = cliente.send_receive(msg_bytes)
                     print('Resposta: ',pickle.loads(resposta))
