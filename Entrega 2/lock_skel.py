@@ -7,9 +7,11 @@ Números de aluno: 56908, 56954
 """
 
 import pickle
+from lock_pool import lock_pool
 class ListSkeleton:
-    def __init__(self):
-        self.servicoLista = []
+    def __init__(self, tLim):
+        self.tLim = tLim
+        self.pool = lock_pool(None)
 
     def processMessage(self, msg_bytes):
         pedido = self.bytesToList(msg_bytes)
@@ -18,50 +20,30 @@ class ListSkeleton:
         if pedido is None or len(pedido) == 0:
             resposta.append('INVALID MESSAGE')
         else:
-            cmd, *args = pedido
-            if cmd == 'APPEND' and len(pedido) > 1:
-                self.servicoLista.append(args[0])
-                resposta.append('OK')
-            elif cmd == 'LIST':
-                resposta = self.servicoLista
-            elif cmd == 'CLEAR':
-                self.servicoLista.clear()
-                resposta.append('OK')
-            elif cmd == 'REMOVE':
-                try:
-                    self.servicoLista.remove(args[0])
-                    resposta.append('OK')
-                except ValueError:
-                    resposta.append('VALUE NOT IN LIST')
-            elif cmd == 'REMOVE-ALL':
-                pre_len = len(self.servicoLista)
-                while True:
-                    try:
-                        self.servicoLista.remove(args[0])
-                    except ValueError:
-                        break
-
-                if pre_len != len(self.servicoLista):
-                    resposta.append('VALUE NOT IN LIST')
-                else:
-                    resposta.append('OK')
-
-            elif cmd == 'POP':
-                if len(self.servicoLista) == 0:
-                    resposta.append('LIST IS EMPTY')
-                else:
-                    resposta.append(self.servicoLista.pop())
+            cmd = pedido[0]
+            if cmd == 10:
+                cId = pedido[4]
+                resposta.append('11')
+            elif cmd == 20:
+                resposta.append('21')
+            elif cmd == 30:
+                resposta.append('31')
+            elif cmd == 40:
+                resposta.append('41')
+            elif cmd == 50:
+                resposta.append('51')
+            elif cmd == 60:
+                resposta.append('61')
+            elif cmd == 70:
+                resposta.append('71')
             else:
                 resposta.append('INVALID MESSAGE')
 
         return self.listToBytes(resposta)
-
-    # fim do metodo processMessage
 
     def bytesToList(self, msg_bytes):
         return pickle.loads(msg_bytes)
 
     def listToBytes(self, msg):
         return pickle.dumps(msg)
-    # outros métodos possíveis
 
