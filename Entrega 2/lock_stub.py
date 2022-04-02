@@ -12,7 +12,6 @@ import struct
 import sys
 from typing import List, Union
 from net_client import server_connection
-
 sys.path.insert(0, '..')
 import sock_utils
 
@@ -45,22 +44,19 @@ class ListStub:
 
         #Não sei bem como é que vamos defenir o cId mas por enquanto fica como msg[4]
 
-        if msg[0] == "LOCK":
+        if msg[0] == 10:
             resp = self.lock(msg[1], msg[2], msg[3], msg[4])
-        elif msg[0] == "UNLOCK":
-            resp = self.unlock(msg[1], msg[2], msg[4])
-        elif msg[0] == "STATUS":
-            resp = self.status(msg[4])
-        elif msg[0] == "STATS":
-            if msg[1] == "K":
-                resp = self.statsK(msg[4])
-            elif msg[1] == "N":
-                resp = self.statsN()
-            elif msg[1] == "D":
-                resp = self.statsD()
-            else:
-                return "INVALID COMMAND" #Não sei tmb se estas msgs de erro vão dar nike dps no código, mas yha é uma questão de dps se experimentar
-        elif msg[0] == "PRINT":
+        elif msg[0] == 20:
+            resp = self.unlock(msg[1], msg[2], msg[3])
+        elif msg[0] == 30:
+            resp = self.status(msg[1])
+        elif msg[1] == 40:
+            resp = self.statsK(msg[1])
+        elif msg[1] == 50:
+            resp = self.statsN()
+        elif msg[1] == 60:
+            resp = self.statsD()
+        elif msg[0] == 70:
             resp = self.print()
         else:
             return "UNKNOWN COMMAND"
