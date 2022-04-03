@@ -24,14 +24,14 @@ class ListSkeleton:
         else:
             cmd = pedido[0]
             if cmd == 10:
-                cId = pedido[2]
-                rId = pedido[4]
+                cId = pedido[4]
+                rId = pedido[2]
                 tLim = pedido[3]
                 type = pedido[1]
                 resposta = [11,self.pool.lock(type, rId, cId, tLim)]
             elif cmd == 20:
-                cId = pedido[2]
-                rId = pedido[3]
+                cId = pedido[3]
+                rId = pedido[2]
                 type = pedido[1]
                 resposta = [21,self.pool.unlock(type, rId, cId)]
             elif cmd == 30:

@@ -202,7 +202,7 @@ class lock_pool:
         """
         for x in self.lista:
             if x.resource_id == resource_id:
-                return x.lock(type,client_id,time_limit)
+                return x.lock(type,time_limit, client_id)
         if resource_id < 1 or resource_id > len(self.lista):
             return None
             
