@@ -12,6 +12,8 @@ import time
 import socket as s
 import pickle
 from lock_pool import lock_pool
+from lock_skel import ListSkeleton
+import select
 
 if len(sys.argv) == 5:
         if sys.argv[1] == 'localhost':
@@ -30,42 +32,24 @@ else:
 
 pool = lock_pool(num_recursos, num_locks)
 socket = sock_utils.create_tcp_server_socket(HOST, PORT, 1)
+skel = ListSkeleton(num_recursos, num_locks)
+
+socket_list = [socket]
+
 
 while True:
     try:
         (conn_sock,addr) = socket.accept()
         msg = conn_sock.recv(1024)
-        separado = pickle.loads(msg)
-        print('Recebi: ',separado)
+        recebido = pickle.loads(msg)
+        print('Recebi: ',recebido)
 
         pool.clear_expired_locks()
 
-        comando = separado[0] 
+        enviado = skel.bytesToList(skel.processMessage(msg))
+        print('Enviei: ', enviado)
 
-        if comando == 10:
-            resp = [11,pool.lock(separado[1],int(separado[2]),int(separado[4]),int(separado[3]))]
-
-        elif comando == 20:
-            resp = [21,pool.unlock(separado[1],int(separado[2]),int(separado[3]))]
-        
-        elif comando == 30:
-            resp = [31,pool.status(separado[1])]
-        
-        elif comando == 40:
-            resp = [41,pool.stats("K",int(separado[1]))]
-
-        elif comando == 50:
-            resp = [51,pool.stats("N")]
-
-        elif comando == 60:
-            resp = [61,pool.stats("D")]
-            
-        elif comando == 70:      
-            resp = [71,pool.__repr__()]
-
-        print('Enviei: ',resp)
-
-        conn_sock.sendall(pickle.dumps(resp, -1) )
+        conn_sock.sendall(skel.processMessage(msg))
         conn_sock.close()
         
     except KeyboardInterrupt:

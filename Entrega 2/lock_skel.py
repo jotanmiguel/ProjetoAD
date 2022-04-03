@@ -10,9 +10,8 @@ import pickle
 from tkinter import RIDGE
 from lock_pool import lock_pool
 class ListSkeleton:
-    def __init__(self, nResources, tLim, maxK):
+    def __init__(self, nResources, maxK):
         self.maxK = maxK
-        self.tLim = tLim
         self.pool = lock_pool(nResources, maxK)
 
     def processMessage(self, msg_bytes):
@@ -38,6 +37,7 @@ class ListSkeleton:
                 rId = pedido[1]
                 resposta = [31,self.pool.status(rId)]
             elif cmd == 40:
+                print(pedido)
                 rId = pedido[2]
                 opt = pedido[1]
                 resposta = [41,self.pool.stats(opt, rId)]

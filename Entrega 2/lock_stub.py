@@ -51,7 +51,7 @@ class ListStub:
         elif msg[0] == 30:
             resp = self.status(msg[1])
         elif msg[1] == 40:
-            resp = self.statsK(msg[1])
+            resp = self.statsK(msg[1], msg[2])
         elif msg[1] == 50:
             resp = self.statsN()
         elif msg[1] == 60:
@@ -122,7 +122,7 @@ class ListStub:
         Returns:
             _type_: _description_
         """
-        msg = [40, rId]
+        msg = [40, 'K', rId]
         return self.server.send_receive(msg)
 
     def statsN(self):

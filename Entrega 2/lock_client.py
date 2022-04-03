@@ -89,21 +89,21 @@ while True:
                     print("MISSING ARGUMENTS")
                 elif args[1].upper() in ['K','N','D']:
                     if args[1].upper() == 'K':
-                            if len(args) < 3:
-                                print("MISSING ARGUMENTS")
-                            else:
-                                cliente.connect()
-                                msg = [40,args[2]]
-                                msg_bytes = pickle.dumps(msg, -1) 
-                                resposta = cliente.send_receive(msg_bytes)
-                                print('Resposta: ',pickle.loads(resposta))
-                                cliente.close()
+                        if len(args) < 3:
+                            print("MISSING ARGUMENTS")
+                        else:
+                            cliente.connect()
+                            msg = [40,args[1], int(args[2])]
+                            msg_bytes = pickle.dumps(msg, -1) 
+                            resposta = cliente.send_receive(msg_bytes)
+                            print('Resposta: ',pickle.loads(resposta))
+                            cliente.close()
                     elif args[1].upper() == 'N':
                             if len(args) < 2:
                                 print("MISSING ARGUMENTS")
                             else:
                                 cliente.connect()
-                                msg = [50]
+                                msg = [50, args[1]]
                                 msg_bytes = pickle.dumps(msg, -1) 
                                 resposta = cliente.send_receive(msg_bytes)
                                 print('Resposta: ',pickle.loads(resposta))
@@ -114,7 +114,7 @@ while True:
                                 print("MISSING ARGUMENTS")
                             else:
                                 cliente.connect()
-                                msg = [60]
+                                msg = [60, args[1]]
                                 msg_bytes = pickle.dumps(msg, -1) 
                                 resposta = cliente.send_receive(msg_bytes)
                                 print('Resposta: ',pickle.loads(resposta))

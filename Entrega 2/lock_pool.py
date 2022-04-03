@@ -32,10 +32,8 @@ class resource_lock:
         if type == "W":
 
             if self.status() == "UNLOCKED" and self.writeLockCount < self.maxK:
-                print("A ", type, time_limit, client_id)
                 self.writeLockCount += 1                
                 self.lockStatus = 2
-                print(self.lockStatus)
                 self.clientLockId = client_id
                 deadline = time.time() + time_limit
                 self.writeLockList.append((client_id,deadline))
