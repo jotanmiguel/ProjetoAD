@@ -13,7 +13,8 @@ import socket as s
 import pickle
 from lock_pool import lock_pool
 from lock_skel import ListSkeleton
-import select
+import select as sel
+import socketserver
 
 if len(sys.argv) == 5:
         if sys.argv[1] == 'localhost':
@@ -28,30 +29,51 @@ if len(sys.argv) == 5:
             num_locks = int(sys.argv[4])
 else:
     print("Utilização errada do comando!")
-    exit()
+    
 
+
+socket = sock_utils.create_tcp_server_socket("", PORT, 5)
 pool = lock_pool(num_recursos, num_locks)
-socket = sock_utils.create_tcp_server_socket(HOST, PORT, 1)
-skel = ListSkeleton(num_recursos, num_locks)
+skel = ListSkeleton(pool)
 
 socket_list = [socket]
 
 
 while True:
     try:
-        (conn_sock,addr) = socket.accept()
-        msg = conn_sock.recv(1024)
-        recebido = pickle.loads(msg)
-        print('Recebi: ',recebido)
+        R,W,X = sel.select(socket_list, [], [])
+        for sock in R:
+            if sock is socket:
+                    (conn_sock,addr) = socket.accept()                
+                    socket_list.append(conn_sock)
+                    addr, port = conn_sock.getpeername()
+                    print("Novo cliente connectado")
+                    print(f'Novo cliente ligado desde {addr}:{port}')                    
+            else:
+                try:
 
-        pool.clear_expired_locks()
 
-        enviado = skel.bytesToList(skel.processMessage(msg))
-        print('Enviei: ', enviado)
 
-        conn_sock.sendall(skel.processMessage(msg))
-        conn_sock.close()
-        
+                    pool.clear_expired_locks()                    
+                    msg = conn_sock.recv(1024)
+                    recebido = pickle.loads(msg)
+                    print('Recebi: ',recebido)
+
+                    if recebido:
+                        enviado = skel.bytesToList(skel.processMessage(msg))                        
+                        print('Enviei: ', enviado)
+                        conn_sock.sendall(skel.listToBytes(enviado))
+                        conn_sock.close()  
+                      
+                    
+                    else:
+                        print("Conexão interrompida")
+                        conn_sock.close()  
+                        socket_list.remove(sock)
+                        
+                except:
+                    None
     except KeyboardInterrupt:
         print("\n KeyboardInterrupt")
         exit()
+socket.close() 

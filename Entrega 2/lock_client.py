@@ -32,18 +32,19 @@ else:
     exit()
 
 cliente = net_client.server_connection(HOST,PORT)
-
+cliente.connect()
 while True:
     comandosSup = ['EXIT','LOCK','UNLOCK','STATUS','STATS','PRINT','SLEEP']
 
     try:
+        
         inputLinha = input("Comando: ")
         args = inputLinha.split()
         comando = args[0].upper()
 
         if comando in comandosSup:
-            if comando == 'EXIT':
-                exit()
+            if comando == 'EXIT': 
+                break
 
             elif comando == 'SLEEP':
                 if len(args) < 2:
@@ -55,34 +56,37 @@ while True:
                 if len(args) < 4:
                     print("MISSING ARGUMENTS")
                 else:
-                    cliente.connect()
+                    
                     msg = [10,args[1],int(args[2]),int(args[3]),int(ID)]
                     msg_bytes = pickle.dumps(msg, -1) 
                     resposta = cliente.send_receive(msg_bytes)
                     print('Resposta: ',pickle.loads(resposta))
-                    cliente.close()
+                     
+                    
 
             elif comando == "UNLOCK":
                 if len(args) < 3:
                     print("MISSING ARGUMENTS")
                 else:
-                    cliente.connect()
+                    
                     msg = [20,args[1],int(args[2]),int(ID)]
                     msg_bytes = pickle.dumps(msg, -1) 
                     resposta = cliente.send_receive(msg_bytes)
                     print('Resposta: ',pickle.loads(resposta))
-                    cliente.close()
+                     
+                    
 
             elif comando == 'STATUS':
                 if len(args) < 2:
                     print("MISSING ARGUMENTS")
                 else:
-                    cliente.connect()
+                    
                     msg = [30,int(args[1])]
                     msg_bytes = pickle.dumps(msg, -1) 
                     resposta = cliente.send_receive(msg_bytes)
                     print('Resposta: ',pickle.loads(resposta))
-                    cliente.close()
+                     
+                    
 
             elif comando == 'STATS':
                 if len(args) < 2:
@@ -92,47 +96,50 @@ while True:
                         if len(args) < 3:
                             print("MISSING ARGUMENTS")
                         else:
-                            cliente.connect()
+                            
                             msg = [40,args[1], int(args[2])]
                             msg_bytes = pickle.dumps(msg, -1) 
                             resposta = cliente.send_receive(msg_bytes)
                             print('Resposta: ',pickle.loads(resposta))
-                            cliente.close()
+                             
+                            
                     elif args[1].upper() == 'N':
                             if len(args) < 2:
                                 print("MISSING ARGUMENTS")
                             else:
-                                cliente.connect()
+                                
                                 msg = [50, args[1]]
                                 msg_bytes = pickle.dumps(msg, -1) 
                                 resposta = cliente.send_receive(msg_bytes)
                                 print('Resposta: ',pickle.loads(resposta))
-                                cliente.close()
+                                 
+                                
                     elif args[1].upper() == 'D':
 
                             if len(args) < 2:
                                 print("MISSING ARGUMENTS")
                             else:
-                                cliente.connect()
+                                
                                 msg = [60, args[1]]
                                 msg_bytes = pickle.dumps(msg, -1) 
                                 resposta = cliente.send_receive(msg_bytes)
                                 print('Resposta: ',pickle.loads(resposta))
-                                cliente.close()
+                                 
+                                
 
             elif comando == "PRINT":
-                    cliente.connect()
+                    
                     msg = [70]
                     msg_bytes = pickle.dumps(msg, -1) 
                     resposta = cliente.send_receive(msg_bytes)
                     print('Resposta: ',pickle.loads(resposta))
-                    cliente.close()
-                
+                                 
         else:
             print("UNKNOWN COMMAND")
-
-
 
     except KeyboardInterrupt:
         print("\n KeyboardInterrupt")
         exit()
+
+cliente.close()
+
