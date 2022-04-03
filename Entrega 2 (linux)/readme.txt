@@ -34,4 +34,4 @@ EXIT
 
 COMENTÁRIOS EXTRA:
 
-O programa não suporta na totalidade mais do que um utilizador.
+O programa não suporta na totalidade mais do que um cliente.
