@@ -27,7 +27,7 @@ class ListStub:
 
     def close(self):
         """
-        Metodo para a desconexao(?) com o servidor.
+        Metodo para a desconexao com o servidor.
         """
         self.server.close()
 
@@ -39,10 +39,8 @@ class ListStub:
             msg (list): lista em que cada elemento representa um parametro especifico do comando a ser enviado.
 
         Returns:
-            _type_: _description_
+            list: lista com a resposta 
         """
-
-        #Não sei bem como é que vamos defenir o cId mas por enquanto fica como msg[4]
 
         if msg[0] == 10:
             resp = self.lock(msg[1], msg[2], msg[3], msg[4])
