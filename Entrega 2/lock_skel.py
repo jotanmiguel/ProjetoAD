@@ -37,7 +37,6 @@ class ListSkeleton:
                 rId = pedido[1]
                 resposta = [31,self.pool.status(rId)]
             elif cmd == 40:
-                print(pedido)
                 rId = pedido[2]
                 opt = pedido[1]
                 resposta = [41,self.pool.stats(opt, rId)]
