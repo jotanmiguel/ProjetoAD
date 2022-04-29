@@ -72,7 +72,13 @@ while True:
                 else:
                     r = requests.get('http://localhost:5000/musicas/'+str(args[2]))
                     print (r.status_code)
-                    print (r.content.decode())          
+                    print (r.content.decode())
+            elif args[1].upper() == "ALL":
+                if args[2].upper() in ["UTILIZADORES","ARTISTAS","MUSICAS"]:
+                    dados = {'tipo':args[2].upper()}
+                    r = requests.get('http://localhost:5000/', json = dados)
+                    print (r.status_code)
+                    print (r.content.decode())        
 
                              
 

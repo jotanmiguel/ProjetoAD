@@ -39,7 +39,7 @@ def utilizadores(numero = None):
              return "Fail"
         else:
              return "Success"
-    if request.method == "GET":
+    elif request.method == "GET":
         db = get_db_connection()
         row = db.execute('SELECT * FROM utilizadores WHERE id = ?', (numero,)).fetchone()
         db.close()
@@ -176,6 +176,27 @@ def playlist():
             return "Fail"
         else:
             return "Success"
+
+@app.route('/', methods=["GET"])
+
+def index():
+    if request.method == "GET":
+        
+        body = request.get_json()
+        tipo = body["tipo"].lower()
+        db = get_db_connection()
+        row = list(db.execute('SELECT * FROM '+tipo+'').fetchall())
+        db.close()
+
+
+        if not row:
+            return {}, 404
+        else:
+            final = {}
+            for x in row:
+                final[row.index(x)] = dict(x)
+            return final, 200
+
 
 
 
