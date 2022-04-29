@@ -1,4 +1,6 @@
+from multiprocessing import connection
 from webbrowser import get
+from colorama import Cursor
 from flask import Flask, request, make_response, abort
 import sqlite3
 
@@ -20,85 +22,33 @@ def root():
     print(cursor)
     db.close()
 
-    return str(cursor.rowcount)
+    return "OK"
 
-@app.route('/alunos', methods=["PUT"])
-@app.route('/alunos/<int:numero>', methods=["GET"])
-def aluno(numero=None):
+@app.route('/utilizadores/<int:numero>', methods=["GET"])
+def utilizadores(numero=None):
     if request.method == "GET":
         # Ler dados do aluno com id na base de dados
-        db = get_db_connection()
-        row = db.execute('SELECT * FROM aluno WHERE numero = ?', (numero,)).fetchone()
-        db.close()
+        connection, Cursor = get_db_connection()
+        row = connection.execute('SELECT * FROM utilizadores WHERE id = ' + str(numero) + '').fetchone()
+        connection.close()
 
         if not row:
-            return {}, 404
+            return "NOT FOUND", 404
         else:
             return {'data': dict(row)}, 200
 
-    elif request.method == "PUT":
-        body = request.get_json()
-        if 'numero' not in body:
-            return {'message': 'numero is required'}, 400
-        elif not isinstance(body['numero'], int):
-            return {'message': 'numero is not an int'}, 400
-        elif 'nome' not in body:
-            return {'message': 'nome is required'}, 400
-
-        numero = body['numero']
-        nome = body['nome']
-
-        try:
-            db = get_db_connection()
-            db.execute("INSERT INTO aluno (numero, nome) VALUES (?, ?)", (numero, nome))
-            db.commit()
-            db.close()
-
-            r = make_response()
-            r.headers['location'] = f'/alunos/{body["numero"]}'
-            return r
-        except sqlite3.IntegrityError:
-            return {'message': 'Erro de integridade'}, 400
-
-
-@app.route('/notas', methods=["POST", "GET"])
-def notas():
-    if request.method == "POST":
-        body = request.get_json()
-
-        if 'numero_aluno' not in body:
-            return {'message': 'numero_aluno is required'}, 400
-        elif not isinstance(body['numero_aluno'], int):
-            return {'message': 'numero_aluno is not an int'}, 400
-        elif 'ano' not in body:
-            return {'message': 'ano is required'}, 400
-        elif 'cadeira' not in body:
-            return {'message': 'cadeira is required'}, 400
-        elif 'nota' not in body:
-            return {'message': 'nota is required'}, 400
-        elif not isinstance(body['nota'], int):
-            return {'message': 'nota is not an int'}, 400
-
-        numero_aluno = body['numero_aluno']
-        ano = body['ano']
-        cadeira = body['cadeira']
-        nota = body['nota']
-
-        try:
-            db = get_db_connection()
-            db.execute("INSERT INTO notas (numero_aluno, ano, cadeira, nota) VALUES (?, ?, ?, ?)", (numero_aluno, ano, cadeira, nota))
-            db.commit()
-            db.close()
-
-            return 201
-        except sqlite3.IntegrityError:
-            return {'message': 'Erro de integridade'}, 400
-
+@app.route('/avaliacoes/<int:numero>', methods=["GET"])
+def avaliacoes(numero=None):
     if request.method == "GET":
-        # ler campos no pedido e fazer query de acordo
-        r = make_response(request.data)  # Devolve os dados no pedido
-        return r
+        # Ler dados do aluno com id na base de dados
+        connection, Cursor = get_db_connection()
+        row = connection.execute('SELECT * FROM avaliacoes WHERE id = ' + str(numero) + '').fetchone()
+        connection.close()
 
+        if not row:
+            return "NOT FOUND", 404
+        else:
+            return {'data': dict(row)}, 200
 
 if __name__ == '__main__':
     app.run(debug=True)
