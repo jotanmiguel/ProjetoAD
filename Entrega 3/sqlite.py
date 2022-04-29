@@ -10,7 +10,7 @@ def connect_db(dbname):
         connection.commit()
     return connection, cursor
 
-um_registo = (123, '2021/2022', 'AD')
+um_registo = (131, '2021/2022', 'AD')
 
 
 if __name__ == '__main__':

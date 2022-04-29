@@ -1,3 +1,4 @@
+from webbrowser import get
 from flask import Flask, request, make_response, abort
 import sqlite3
 
@@ -6,20 +7,20 @@ app = Flask(__name__)
 def get_db_connection():
     conn = sqlite3.connect('BD.db')
     conn.row_factory = sqlite3.Row
-    return conn
+    cursor = conn.cursor()
+    return conn, cursor
 
 @app.route('/', methods=["GET"])
 def root():
-    db = get_db_connection()
+    db, cursor = get_db_connection()
 
-    query = 'SELECT * FROM utilizadores;'
-    query1 = 'SELECT * FROM disciplina;'
-    query2 = 'SELECT * FROM turma;'
-    query3 = 'SELECT * FROM inscricoes;'
-    
-    row = db.execute(query)
+    cursor.execute('SELECT * FROM utilizadores')
+    cursor.fetchall()
 
-    return request.method
+    print(cursor)
+    db.close()
+
+    return str(cursor.rowcount)
 
 @app.route('/alunos', methods=["PUT"])
 @app.route('/alunos/<int:numero>', methods=["GET"])
