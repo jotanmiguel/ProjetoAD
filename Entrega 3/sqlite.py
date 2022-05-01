@@ -9,6 +9,7 @@ Números de aluno: 56908, 56954
 
 
 import sqlite3
+
 from os.path import isfile
 def connect_db(dbname):
     db_is_created = isfile(dbname) # Existe ficheiro da base de dados?

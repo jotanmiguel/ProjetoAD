@@ -10,7 +10,6 @@ Números de aluno: 56908, 56954
 import requests
 import json
 import os
-import subprocess
 
 while True:
 
