@@ -1,3 +1,12 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+"""
+Aplicações Distribuídas - Projeto 3 - server.py
+Grupo: 2
+Números de aluno: 56908, 56954
+"""
+
 from flask import Flask, request, make_response, abort
 import sqlite3
 
@@ -43,7 +52,7 @@ def utilizadores(numero = None):
     elif request.method == "GET":
         db = get_db_connection()
         try:
-            row = list(db.execute('SELECT * FROM utilizadores WHERE id = ?', (numero,)).fetchone())
+            row = db.execute('SELECT * FROM utilizadores WHERE id = ?', (numero,)).fetchone()
             db.close()
             print(row)
         except TypeError:
@@ -53,7 +62,7 @@ def utilizadores(numero = None):
             return {}, 404
         else:
             
-            return {'data': row}, 200
+            return {'data': dict(row)}, 200
 
     elif request.method == "DELETE":
         db = get_db_connection()
@@ -298,7 +307,9 @@ def playlist():
 
         db = get_db_connection()
         todos = list(db.execute("SELECT * FROM musicas").fetchall())
+        users = list(db.execute("SELECT * FROM utilizadores").fetchall())
         art = []
+        usr = []
 
         for x in todos:
             art.append(x[0])
@@ -307,6 +318,17 @@ def playlist():
             print(id_musica)
             print("Song is not in DataBase")
             return "Song is not in DataBase", 404
+        
+        for x in users:
+            usr.append(x[0])
+        if int(id_user) not in usr:
+            print(usr)
+            print(id_user)
+            print("User is not in DataBase")
+            return "User is not in DataBase", 404
+
+        if int(avaliacao) not in [1,2,3,4,5]:
+            return "Invalid rating", 404        
         
         row = db.execute("UPDATE playlists SET id_avaliacao = "+avaliacao+" WHERE id_user = "+id_user+" AND id_musica = "+id_musica+"")
         db.commit()
@@ -367,8 +389,8 @@ def index():
                 if dict(x)["id_musica"] in final:
                     dictAval[aval.index(x)] = songs[final.index(dict(x)["id_musica"])]
             db.close()
-            if not row:
-                return {}, 404
+            if len(dictAval) < 1:
+                return "This artist has no songs in playlists", 404
             else:
 
                 return dictAval, 200
@@ -377,12 +399,19 @@ def index():
 
             user = body["extra"]
             db = get_db_connection()
+
+            try:
+                id_spot = db.execute('SELECT * FROM utilizadores WHERE id = ?', (user,)).fetchone()[1]
+
+            except TypeError:
+                return "There is no such user", 404 
+
             row = list(db.execute('SELECT * FROM playlists WHERE id_user = ?', (user,)).fetchall())
             db.close()
 
 
             if not row:
-                return {}, 404
+                return "This user has no songs in playlists", 404
             else:
                 final = {}
                 for x in row:

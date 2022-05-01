@@ -1,3 +1,13 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+"""
+Aplicações Distribuídas - Projeto 3 - sqlite.py
+Grupo: 2
+Números de aluno: 56908, 56954
+"""
+
+
 import sqlite3
 from os.path import isfile
 def connect_db(dbname):

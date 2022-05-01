@@ -1,3 +1,12 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+"""
+Aplicações Distribuídas - Projeto 3 - client.py
+Grupo: 2
+Números de aluno: 56908, 56954
+"""
+
 import requests
 import json
 import os
@@ -10,7 +19,8 @@ while True:
     inputLinha = input("Comando: ")
     args = inputLinha.split()
     comando = args[0].upper()
-    token = "BQC5-ikXaI1I1hEVkGB0E386aQf2pkmfRUhlIY9QXR_KL_6wa_BLd_k3lBdubsmXs7w4IlcFHomzzJ29WwFDXIh5HgGiLqrecEmyybTeYdJBox3X7n-rJNyPojg2N53KQUKDjCdRZQUhXJW9tDza"
+    token = "BQBT-DZyI5ssoY3scGImotFJCHsNrdOsqWwau3NCQsBHf493CUrJL3caRcKritXjqXgaiSJFovn2xItrd8G5MAqejHWoqyiXURVFkSqIC8XSMe-tlihiyaecz1bb8BG7U6V4QEhHaCYwaABIw5BW"
+
     if comando in comandosSup:
 
         if comando == "CREATE":
@@ -135,7 +145,9 @@ while True:
                     dados = {'id_user':str(args[2]),'password':str(args[3])}                     
                     r = requests.put('http://localhost:5000/utilizadores/'+str(args[2]), json = dados)
                     print (r.status_code)
-                    print (r.content.decode())            
+                    print (r.content.decode()) 
+    else:
+        print("INAVLID COMMAND")           
 
 
                              
