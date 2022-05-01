@@ -57,9 +57,14 @@ def utilizadores(numero = None):
 
     elif request.method == "DELETE":
         db = get_db_connection()
-        row = db.execute('DELETE FROM utilizadores WHERE id = ?', (numero,))
-        db.commit()
-        db.close()
+
+        try:
+            l = list(db.execute('SELECT * FROM utilizadores WHERE id = ?', (numero,)).fetchone())            
+            row = db.execute('DELETE FROM utilizadores WHERE id = ?', (numero,))
+            db.commit()
+            db.close()
+        except TypeError:
+            return "There is no such user", 404
 
         if not row:
             return {}, 404
@@ -72,11 +77,15 @@ def utilizadores(numero = None):
 
         id_user = body['id_user']
         password = body['password']
-        print(password)
         db = get_db_connection()
-        row = db.execute("UPDATE utilizadores SET senha=? WHERE id = ? ", (password,id_user))
-        db.commit()
-        db.close()
+
+        try:
+            l = list(db.execute('SELECT * FROM utilizadores WHERE id = ?', (numero,)).fetchone()) 
+            row = db.execute("UPDATE utilizadores SET senha=? WHERE id = ? ", (password,id_user))
+            db.commit()
+            db.close()
+        except TypeError:
+            return "There is no such user", 404
 
         if not row:
             return {}, 404
@@ -123,8 +132,14 @@ def artistas(id_artista = None):
 
     elif request.method == "GET":
         db = get_db_connection()
-        row = db.execute('SELECT * FROM artistas WHERE id = ?', (id_artista,)).fetchone()
-        db.close()
+
+        try:
+            l = list(db.execute('SELECT * FROM artistas WHERE id = ?', (id_artista,)).fetchone())
+            row = db.execute('SELECT * FROM artistas WHERE id = ?', (id_artista,)).fetchone()            
+            db.close()
+            print(row)
+        except TypeError:
+            return "There is no such artist", 404
 
         if not row:
             return {}, 404
@@ -134,9 +149,15 @@ def artistas(id_artista = None):
 
     elif request.method == "DELETE":
         db = get_db_connection()
-        row = db.execute('DELETE FROM artistas WHERE id = ?', (id_artista,))
-        db.commit()
-        db.close()
+
+        try:
+            l = list(db.execute('SELECT * FROM artistas WHERE id = ?', (id_artista,)).fetchone())
+            row = db.execute('DELETE FROM artistas WHERE id = ?', (id_artista,))
+            db.commit()
+            db.close()
+        except TypeError:
+            return "There is no such artist", 404       
+
 
         if not row:
             return {}, 404
@@ -156,7 +177,6 @@ def musicas(id_musica = None):
         nome = body['nome']
         id_artista = body['id_artista']
         token = body['token']
-        # Ler dados do aluno com id na base de dados
         db = get_db_connection()
 
         todos = list(db.execute("SELECT * FROM musicas").fetchall())
@@ -201,19 +221,29 @@ def musicas(id_musica = None):
 
     elif request.method == "GET":
         db = get_db_connection()
-        row = db.execute('SELECT * FROM musicas WHERE id = ?', (id_musica,)).fetchone()
-        db.close()
+        try:
+            l = list(db.execute('SELECT * FROM musicas WHERE id = ?', (id_musica,)).fetchone())
+            row = db.execute('SELECT * FROM musicas WHERE id = ?', (id_musica,)).fetchone()            
+            db.close()
+        except TypeError:
+            return "There is no such song", 404
 
         if not row:
             return {}, 404
         else:
             
             return {'data': dict(row)}, 200
+
     elif request.method == "DELETE":
         db = get_db_connection()
-        row = db.execute('DELETE FROM musicas WHERE id = ?', (id_musica,))
-        db.commit()
-        db.close()
+        try:
+            l = list(db.execute('SELECT * FROM musicas WHERE id = ?', (id_musica,)).fetchone())
+            row = db.execute('DELETE FROM musicas WHERE id = ?', (id_musica,))
+            db.commit()
+            db.close()
+
+        except TypeError:
+            return "There is no such artist", 404   
 
         if not row:
             return {}, 404
@@ -240,7 +270,7 @@ def playlist():
         if int(musica) not in art:
             print(art)
             print("Song is not in DataBase")
-            return {}, 404
+            return "Song is not in DataBase", 404
 
         try:
 
@@ -276,7 +306,7 @@ def playlist():
             print(art)
             print(id_musica)
             print("Song is not in DataBase")
-            return {}, 404
+            return "Song is not in DataBase", 404
         
         row = db.execute("UPDATE playlists SET id_avaliacao = "+avaliacao+" WHERE id_user = "+id_user+" AND id_musica = "+id_musica+"")
         db.commit()
@@ -316,8 +346,12 @@ def index():
         elif body["tipo"].upper() == "MUSICAS_A":
             artista = body["extra"]
             db = get_db_connection()
-            id_spot = db.execute('SELECT * FROM artistas WHERE id = ?', (artista,)).fetchone()[1]
-            print(id_spot) 
+            try:
+                id_spot = db.execute('SELECT * FROM artistas WHERE id = ?', (artista,)).fetchone()[1]
+
+            except TypeError:
+                return "There is no such artist", 404 
+
             row = list(db.execute('SELECT * FROM musicas WHERE id_artista = ?', (id_spot,)).fetchall())
             final = []
             songs = []
@@ -388,7 +422,13 @@ def index():
         elif body["tipo"].upper() == "MUSICAS_A":
             artista = body["extra"]
             db = get_db_connection()
-            id_spot = db.execute('SELECT * FROM artistas WHERE id = ?', (artista,)).fetchone()[1]
+
+            try:
+                id_spot = db.execute('SELECT * FROM artistas WHERE id = ?', (artista,)).fetchone()[1]
+
+            except TypeError:
+                return "There is no such artist", 404 
+
             row = list(db.execute('SELECT * FROM musicas WHERE id_artista = ?', (id_spot,)).fetchall())
             final = []
             songs = []
