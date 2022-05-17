@@ -13,6 +13,15 @@ import sqlite3
 import requests
 import json
 import os
+import ssl
+from requests_oauthlib import OAuth2Session
+import os
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+client_id = '1795b07fddce45b78beb3ab5b8ea9655'
+client_secret ='045bedeffdd8497a8dcff146cf567ac6'
+
+
 
 app = Flask(__name__)
 
@@ -510,4 +519,8 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_SERVER)
+    context.verify_mode = ssl.CERT_REQUIRED
+    context.load_verify_locations(cafile='root.pem')
+    context.load_cert_chain(certfile='serv.crt',keyfile='serv.key')
+    app.run('localhost', ssl_context=context, debug = True)
