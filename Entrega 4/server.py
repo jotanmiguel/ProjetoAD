@@ -16,10 +16,6 @@ import os
 import ssl
 from requests_oauthlib import OAuth2Session
 import os
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-
-client_id = '1795b07fddce45b78beb3ab5b8ea9655'
-client_secret ='045bedeffdd8497a8dcff146cf567ac6'
 
 
 
