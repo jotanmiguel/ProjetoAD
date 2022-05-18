@@ -21,7 +21,7 @@ while True:
     inputLinha = input("Comando: ")
     args = inputLinha.split()
     comando = args[0].upper()
-    token = "BQBT-DZyI5ssoY3scGImotFJCHsNrdOsqWwau3NCQsBHf493CUrJL3caRcKritXjqXgaiSJFovn2xItrd8G5MAqejHWoqyiXURVFkSqIC8XSMe-tlihiyaecz1bb8BG7U6V4QEhHaCYwaABIw5BW"
+    token = "BQCDl21qnahxy1-QqR_pGLystqhoec-wJzcgSkZKcIOEp5ZTQTYT_UxKxip3yxYBihC2IrA3IMnwwtWOt4FL9vuD447KPWU622yPQjUC9MNrniQEXBgZeQL7dcJE54QLm-pPR9Oswo5r_L-BO_wR"
 
     if comando in comandosSup:
 
