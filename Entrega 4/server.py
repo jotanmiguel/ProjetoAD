@@ -7,7 +7,8 @@ Grupo: 2
 Números de aluno: 56908, 56954
 """
 
-from flask import Flask, request, make_response, abort
+from http import client
+from flask import Flask, request, make_response, redirect, url_for, jsonify
 import sqlite3
 
 import requests
@@ -18,14 +19,48 @@ from requests_oauthlib import OAuth2Session
 import os
 
 
-
 app = Flask(__name__)
+
 
 
 def get_db_connection():
     conn = sqlite3.connect('BD.db')
     conn.row_factory = sqlite3.Row
     return conn
+
+
+client_id='1795b07fddce45b78beb3ab5b8ea9655'
+client_secret='045bedeffdd8497a8dcff146cf567ac6'
+
+redirect_uri = "https://localhost:5000/callback"
+spotify = OAuth2Session(client_id, redirect_uri = redirect_uri)
+
+OAuthToken = ""
+headers = {}
+
+@app.route('/login', methods=["GET"])
+def login():
+    global spotify
+    authorization_base_url="https://accounts.spotify.com/authorize"
+    authorization_url, state = spotify.authorization_url(authorization_base_url)
+    return redirect(authorization_url)
+
+@app.route('/callback',methods=["GET"])
+def callback():
+    global headers,OAuthToken,spotify
+    token_url = 'https://accounts.spotify.com/api/token'
+    spotify.fetch_token(token_url,client_secret=client_secret,authorization_response=request.url)['access_token']
+    OAuthToken = spotify.access_token
+    headers = {
+        "Authorization": "Bearer" + OAuthToken
+    }
+    return redirect(url_for('.profile'))
+
+@app.route('/profile',methods=["GET"])
+def profile():
+    global spotify
+    protected_resource = 'https://api.spotify.com/v1/me'
+    return jsonify(spotify.get(protected_resource).json())
 
 
 @app.route('/utilizadores', methods=["POST"])
@@ -515,6 +550,7 @@ def index():
 
 
 if __name__ == '__main__':
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_SERVER)
     context.verify_mode = ssl.CERT_REQUIRED
     context.load_verify_locations(cafile='root.pem')
