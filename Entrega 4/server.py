@@ -259,7 +259,7 @@ def musicas(id_musica = None):
                 spotify = os.popen('curl -X "GET" '+artistName+' -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer '+token+'"')
                 spot = json.loads(spotify.read())
                 dados = {"id_spotify":str(id_artista),"nome":spot["name"]} 
-                r = requests.post('https://localhost:5000/artistas', json = dados,verify='root.pem',cert=('cli.crt','cli.key'))
+                r = requests.post('https://localhost:5000/artistas', json = dados,verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
 
             if not row:
                 return {}, 404
@@ -552,6 +552,6 @@ if __name__ == '__main__':
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_SERVER)
     context.verify_mode = ssl.CERT_REQUIRED
-    context.load_verify_locations(cafile='root.pem')
-    context.load_cert_chain(certfile='serv.crt',keyfile='serv.key')
+    context.load_verify_locations(cafile='certs/root.pem')
+    context.load_cert_chain(certfile='server/serv.crt',keyfile='server/serv.key')
     app.run('localhost', ssl_context=context, debug = True)

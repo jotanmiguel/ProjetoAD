@@ -29,7 +29,7 @@ while True:
                     print("MISSING ARGUMENTS")
                 else:
                     dados = {'nome':str(args[2]),'senha':str(args[3])} 
-                    r = requests.post('https://localhost:5000/utilizadores', json = dados,verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.post('https://localhost:5000/utilizadores', json = dados,verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.content.decode())   
 
             elif args[1].upper() == "ARTISTA":
@@ -40,7 +40,7 @@ while True:
                     spotify = os.popen('curl -X "GET" '+artistName+' -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer '+token+'"')
                     spot = json.loads(spotify.read())
                     dados = {"id_spotify":str(args[2]),"nome":spot["name"]} 
-                    r = requests.post('https://localhost:5000/artistas', json = dados,verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.post('https://localhost:5000/artistas', json = dados,verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.content.decode())   
 
             elif args[1].upper() == "MUSICA":
@@ -52,13 +52,13 @@ while True:
                     spot = json.loads(spotify.read())
                     dados = {"id_spotify":str(args[2]),"nome":spot["name"],"id_artista":spot["artists"][0]["id"],"token":token} 
  
-                    r = requests.post('https://localhost:5000/musicas', json = dados,verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.post('https://localhost:5000/musicas', json = dados,verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
             else:
                 if len(args) < 4:
                     print("MISSING ARGUMENTS")
                 else:
                     dados = {'user':args[1],'musica':args[2],'avaliacao':str(args[3])}
-                    r = requests.post('https://localhost:5000/playlist', json = dados,verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.post('https://localhost:5000/playlist', json = dados,verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.content.decode())   
 
         elif comando == "READ":
@@ -66,32 +66,32 @@ while True:
                 if len(args) < 3:
                     print("MISSING ARGUMENTS")
                 else:
-                    r = requests.get('https://localhost:5000/utilizadores/'+args[2],verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.get('https://localhost:5000/utilizadores/'+args[2],verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.status_code)
                     print (r.content.decode())
             elif args[1].upper() == "ARTISTA":
                 if len(args) < 3:
                     print("MISSING ARGUMENTS")
                 else:
-                    r = requests.get('https://localhost:5000/artistas/'+str(args[2]),verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.get('https://localhost:5000/artistas/'+str(args[2]),verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.status_code)
                     print (r.content.decode())
             elif args[1].upper() == "MUSICA":
                 if len(args) < 3:
                     print("MISSING ARGUMENTS")
                 else:
-                    r = requests.get('https://localhost:5000/musicas/'+str(args[2]),verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.get('https://localhost:5000/musicas/'+str(args[2]),verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.status_code)
                     print (r.content.decode())
             elif args[1].upper() == "ALL":
                 if args[2].upper() in ["UTILIZADORES","ARTISTAS","MUSICAS"] and len(args) < 4:
                     dados = {'tipo':args[2].upper()}
-                    r = requests.get('https://localhost:5000/', json = dados,verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.get('https://localhost:5000/', json = dados,verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.status_code)
                     print (r.content.decode()) 
                 else:
                     dados = {'tipo':args[2].upper(),'extra':args[3]}
-                    r = requests.get('https://localhost:5000/', json = dados,verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.get('https://localhost:5000/', json = dados,verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.status_code)
                     print (r.content.decode())
                 
@@ -100,32 +100,32 @@ while True:
                 if len(args) < 3:
                     print("MISSING ARGUMENTS")
                 else:
-                    r = requests.delete('https://localhost:5000/utilizadores/'+args[2],verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.delete('https://localhost:5000/utilizadores/'+args[2],verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.status_code)
                     print (r.content.decode())
             elif args[1].upper() == "ARTISTA":
                 if len(args) < 3:
                     print("MISSING ARGUMENTS")
                 else:
-                    r = requests.delete('https://localhost:5000/artistas/'+str(args[2]),verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.delete('https://localhost:5000/artistas/'+str(args[2]),verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.status_code)
                     print (r.content.decode())
             elif args[1].upper() == "MUSICA":
                 if len(args) < 3:
                     print("MISSING ARGUMENTS")
                 else:
-                    r = requests.delete('https://localhost:5000/musicas/'+str(args[2]),verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.delete('https://localhost:5000/musicas/'+str(args[2]),verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.status_code)
                     print (r.content.decode())
             elif args[1].upper() == "ALL":
                 if args[2].upper() in ["UTILIZADORES","ARTISTAS","MUSICAS"] and len(args) < 4:
                     dados = {'tipo':args[2].upper()}
-                    r = requests.delete('https://localhost:5000/', json = dados,verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.delete('https://localhost:5000/', json = dados,verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.status_code)
                     print (r.content.decode()) 
                 else:
                     dados = {'tipo':args[2].upper(),'extra':args[3]}
-                    r = requests.delete('https://localhost:5000/', json = dados,verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.delete('https://localhost:5000/', json = dados,verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.status_code)
                     print (r.content.decode())
         
@@ -135,7 +135,7 @@ while True:
                     print("MISSING ARGUMENTS")
                 else:
                     dados = {'id_musica':str(args[2]),'avaliacao':str(args[3]),'id_user':str(args[4])}                     
-                    r = requests.put('https://localhost:5000/playlist', json = dados,verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.put('https://localhost:5000/playlist', json = dados,verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.status_code)
                     print (r.content.decode())
             elif args[1].upper() == "UTILIZADOR":
@@ -143,7 +143,7 @@ while True:
                     print("MISSING ARGUMENTS")
                 else:
                     dados = {'id_user':str(args[2]),'password':str(args[3])}                     
-                    r = requests.put('https://localhost:5000/utilizadores/'+str(args[2]), json = dados,verify='root.pem',cert=('cli.crt','cli.key'))
+                    r = requests.put('https://localhost:5000/utilizadores/'+str(args[2]), json = dados,verify='certs/root.pem',cert=('client/cli.crt','client/cli.key'))
                     print (r.status_code)
                     print (r.content.decode()) 
     else:
