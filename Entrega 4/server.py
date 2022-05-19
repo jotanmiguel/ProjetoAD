@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Aplicações Distribuídas - Projeto 3 - server.py
+Aplicações Distribuídas - Projeto 4 - server.py
 Grupo: 2
 Números de aluno: 56908, 56954
 """
@@ -20,7 +20,6 @@ import os
 
 
 app = Flask(__name__)
-
 
 
 def get_db_connection():
@@ -260,7 +259,7 @@ def musicas(id_musica = None):
                 spotify = os.popen('curl -X "GET" '+artistName+' -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer '+token+'"')
                 spot = json.loads(spotify.read())
                 dados = {"id_spotify":str(id_artista),"nome":spot["name"]} 
-                r = requests.post('http://localhost:5000/artistas', json = dados)
+                r = requests.post('https://localhost:5000/artistas', json = dados,verify='root.pem',cert=('cli.crt','cli.key'))
 
             if not row:
                 return {}, 404

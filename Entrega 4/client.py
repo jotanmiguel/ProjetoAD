@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Aplicações Distribuídas - Projeto 3 - client.py
+Aplicações Distribuídas - Projeto 4 - client.py
 Grupo: 2
 Números de aluno: 56908, 56954
 """
@@ -19,7 +19,7 @@ while True:
     inputLinha = input("Comando: ")
     args = inputLinha.split()
     comando = args[0].upper()
-    token = "BQCDl21qnahxy1-QqR_pGLystqhoec-wJzcgSkZKcIOEp5ZTQTYT_UxKxip3yxYBihC2IrA3IMnwwtWOt4FL9vuD447KPWU622yPQjUC9MNrniQEXBgZeQL7dcJE54QLm-pPR9Oswo5r_L-BO_wR"
+    token = "BQCWPahHCi98vCLRUwwfvfUH5XYdT0e73nk3QccZ4QPDF1JPnESZuabcsUYAyBDQv4R4LqmlRVmADDFNPwM8GIMt6kRhyAUaioKjmHtNVrrv8iwbbeGRiiv0O5Xpv3MM7HAGd8jmc9J6wj19Xlbt"
 
     if comando in comandosSup:
 

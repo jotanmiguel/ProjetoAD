@@ -1,5 +1,5 @@
 """
-Aplicações Distribuídas - Projeto 3 - readme.txt
+Aplicações Distribuídas - Projeto 4 - readme.txt
 Grupo: 2
 Números de aluno: 56908, 56954
 """

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Aplicações Distribuídas - Projeto 3 - sqlite.py
+Aplicações Distribuídas - Projeto 4 - sqlite.py
 Grupo: 2
 Números de aluno: 56908, 56954
 """
