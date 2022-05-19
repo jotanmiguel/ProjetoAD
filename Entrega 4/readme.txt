@@ -13,9 +13,9 @@ python client.py
 
 COMENTÁRIOS EXTRA:
 
+O programa suporta todos os comandos do projeto 3, e cumpre todos os objetivos determinados no pdf do enunciado.
+
 É necessário atualizar o token após um certo intervalo de tempo, pois este possui uma duração limitada. 
 Basta trocar a variável que se encontra no ficheiro client.py (linha 22)
 
-As mensagens de erro encontram-se em inglês.
-
-O programa cumpre todos os objetivos determinados no pdf do enunciado.
+As mensagens de erro encontram-se em inglês. 
