@@ -1,6 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+Aplicações Distribuídas - Projeto 1 - net_client.py
+Grupo: 2
+Números de aluno: 56908, 56954
 """
 
-"""
+# zona para fazer importação
 
 import sock_utils
 

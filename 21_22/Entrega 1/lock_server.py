@@ -15,49 +15,50 @@ import socket as s
 
 ###############################################################################
 
+
 class resource_lock:
     def __init__(self, resource_id):
         """
         Define e inicializa as propriedades do recurso para os bloqueios.
         """
         self.resource_id = resource_id
-        self.lockStatus = 0 #0 - Unlocked 1 - Locked Read 2 - Locked Write 3 - Disabled
+        self.lockStatus = 0  # 0 - Unlocked 1 - Locked Read 2 - Locked Write 3 - Disabled
         self.clientLockId = None
         self.writeLockList = []
         self.readLockList = []
         self.writeLockCount = 0
         self.maxK = 0
 
-
     def lock(self, type, client_id, time_limit):
         """
-        Tenta bloquear o recurso pelo cliente client_id, durante time_limit 
+        Tenta bloquear o recurso pelo cliente client_id, durante time_limit
         segundos. Retorna OK ou NOK. O bloqueio pode ser de escrita (type=W)
         ou de leitura (type=R).
         """
         if type == "W":
-
             if self.status() == "UNLOCKED" and self.writeLockCount < self.maxK:
-                self.writeLockCount += 1                
+                self.writeLockCount += 1
                 self.lockStatus = 2
                 deadline = time.time() + time_limit
-                self.writeLockList.append((client_id,deadline))
+                self.writeLockList.append((client_id, deadline))
                 return "OK"
-                
-            elif self.status() == "LOCKED-W" or self.status() == "LOCKED-R" or self.status() == "DISABLED":
+
+            elif (
+                self.status() == "LOCKED-W"
+                or self.status() == "LOCKED-R"
+                or self.status() == "DISABLED"
+            ):
                 return "NOK"
 
         elif type == "R":
-
             if self.status() == "UNLOCKED" or self.status() == "LOCKED-R":
                 self.lockStatus = 1
                 deadline = time.time() + time_limit
-                self.readLockList.append((client_id,deadline))
+                self.readLockList.append((client_id, deadline))
                 return "OK"
 
             elif self.status() == "LOCKED-W" or self.status() == "DISABLED":
                 return "NOK"
-
 
     def release(self):
         """
@@ -69,17 +70,24 @@ class resource_lock:
     def unlock(self, type, client_id):
         """
         Liberta o recurso se este está bloqueado pelo cliente client_id.
-        Retorna OK ou NOK.O desbloqueio pode ser relacionado a bloqueios 
+        Retorna OK ou NOK.O desbloqueio pode ser relacionado a bloqueios
         de escrita (type=W) ou de leitura (type=R), consoante o tipo.
         """
         if type == "W":
-
-            if self.lockStatus == 2 and int(self.writeLockList[0][0]) == int(client_id) and self.writeLockCount < self.maxK:
+            if (
+                self.lockStatus == 2
+                and int(self.writeLockList[0][0]) == int(client_id)
+                and self.writeLockCount < self.maxK
+            ):
                 self.writeLockList.pop(0)
                 self.lockStatus = 0
                 return "OK"
 
-            elif self.lockStatus == 2 and self.writeLockCount == self.maxK and int(self.writeLockList[0][0]) == int(client_id):
+            elif (
+                self.lockStatus == 2
+                and self.writeLockCount == self.maxK
+                and int(self.writeLockList[0][0]) == int(client_id)
+            ):
                 self.writeLockList.pop(0)
                 self.lockStatus = 3
                 return "OK"
@@ -88,7 +96,6 @@ class resource_lock:
                 return "NOK"
 
         elif type == "R":
-
             if self.lockStatus == 1:
                 clientsList = []
                 for x in range(len(self.readLockList)):
@@ -103,11 +110,9 @@ class resource_lock:
                 else:
                     return "NOK"
 
-                      
-
     def status(self):
         """
-        Obtém o estado do recurso. Retorna LOCKED-W ou LOCKED-R ou UNLOCKED 
+        Obtém o estado do recurso. Retorna LOCKED-W ou LOCKED-R ou UNLOCKED
         ou DISABLED.
         """
         if self.lockStatus == 0:
@@ -119,16 +124,15 @@ class resource_lock:
         elif self.lockStatus == 3:
             return "DISABLED"
 
-
     def stats(self):
         """
-        Retorna o número de bloqueios de escrita feitos neste recurso. 
+        Retorna o número de bloqueios de escrita feitos neste recurso.
         """
         return self.writeLockCount
-   
+
     def disable(self):
         """
-        Coloca o recurso como desabilitado incondicionalmente, alterando os 
+        Coloca o recurso como desabilitado incondicionalmente, alterando os
         valores associados à sua disponibilidade.
         """
         self.lockStatus = 3
@@ -150,31 +154,65 @@ class resource_lock:
         # R <num do recurso> DISABLED
 
         if self.lockStatus == 0:
-            output += "R "+str(self.resource_id)+" UNLOCKED "+str(self.writeLockCount)+"\n" 
+            output += (
+                "R "
+                + str(self.resource_id)
+                + " UNLOCKED "
+                + str(self.writeLockCount)
+                + "\n"
+            )
         elif self.lockStatus == 1:
-            output += "R "+str(self.resource_id)+" LOCKED-R "+ str(self.writeLockCount) +" "+ str(len(self.readLockList))+ " " + str(self.readLockList[len(self.readLockList)-1][1])+"\n"
-        elif self.lockStatus == 2: 
-            output += "R "+str(self.resource_id)+" LOCKED-W "+ str(self.writeLockCount) +" "+ str(self.writeLockList[0][0])+ " " + str(self.writeLockList[0][1])+"\n"
+            output += (
+                "R "
+                + str(self.resource_id)
+                + " LOCKED-R "
+                + str(self.writeLockCount)
+                + " "
+                + str(len(self.readLockList))
+                + " "
+                + str(self.readLockList[len(self.readLockList) - 1][1])
+                + "\n"
+            )
+        elif self.lockStatus == 2:
+            output += (
+                "R "
+                + str(self.resource_id)
+                + " LOCKED-W "
+                + str(self.writeLockCount)
+                + " "
+                + str(self.writeLockList[0][0])
+                + " "
+                + str(self.writeLockList[0][1])
+                + "\n"
+            )
         else:
-            output += "R "+str(self.resource_id)+" DISABLED "+str(self.writeLockCount)+"\n"   
+            output += (
+                "R "
+                + str(self.resource_id)
+                + " DISABLED "
+                + str(self.writeLockCount)
+                + "\n"
+            )
 
         return output
 
+
 ###############################################################################
+
 
 class lock_pool:
     def __init__(self, N, K):
         """
-        Define um array com um conjunto de resource_locks para N recursos. 
-        Os locks podem ser manipulados pelos métodos desta classe. 
-        Define K, o número máximo de bloqueios de escrita permitidos para cada 
+        Define um array com um conjunto de resource_locks para N recursos.
+        Os locks podem ser manipulados pelos métodos desta classe.
+        Define K, o número máximo de bloqueios de escrita permitidos para cada
         recurso. Ao atingir K bloqueios de escrita, o recurso fica desabilitado.
         """
         self.K = K
-        self.lista = [resource_lock(x) for x in range(1,N+1)]
+        self.lista = [resource_lock(x) for x in range(1, N + 1)]
         for x in self.lista:
             x.maxK = self.K
-        
+
     def clear_expired_locks(self):
         """
         Verifica se os recursos que estão bloqueados ainda estão dentro do tempo
@@ -183,7 +221,6 @@ class lock_pool:
         """
         for x in self.lista:
             if len(x.writeLockList) > 0:
-
                 if time.time() > x.writeLockList[0][1] and x.writeLockCount < x.maxK:
                     x.writeLockList = []
                     x.lockStatus = 0
@@ -193,37 +230,32 @@ class lock_pool:
                     x.lockStatus = 3
 
             elif len(x.readLockList) > 0:
-
                 for y in range(len(x.readLockList)):
-
                     if time.time() > x.readLockList[y][1]:
                         x.readLockList.pop(y)
 
                         if len(x.readLockList) == 0:
                             x.lockStatus = 0
 
-
     def lock(self, type, resource_id, client_id, time_limit):
         """
-        Tenta bloquear (do tipo R ou W) o recurso resource_id pelo cliente client_id, 
+        Tenta bloquear (do tipo R ou W) o recurso resource_id pelo cliente client_id,
         durante time_limit segundos. Retorna OK, NOK ou UNKNOWN RESOURCE.
         """
         for x in self.lista:
             if x.resource_id == resource_id:
-                return x.lock(type,client_id,time_limit)
+                return x.lock(type, client_id, time_limit)
         if resource_id < 1 or resource_id > len(self.lista):
             return "UNKNOWN RESOURCE"
-            
-            
 
     def unlock(self, type, resource_id, client_id):
         """
-        Liberta o bloqueio (do tipo R ou W) sobre o recurso resource_id pelo cliente 
+        Liberta o bloqueio (do tipo R ou W) sobre o recurso resource_id pelo cliente
         client_id. Retorna OK, NOK ou UNKNOWN RESOURCE.
         """
         for x in self.lista:
             if x.resource_id == resource_id:
-                return x.unlock(type,client_id)
+                return x.unlock(type, client_id)
         if resource_id < 1 or resource_id > len(self.lista):
             return "UNKNOWN RESOURCE"
 
@@ -240,13 +272,12 @@ class lock_pool:
 
     def stats(self, option, resource_id=None):
         """
-        Obtém o estado do serviço de gestão de bloqueios. Se option for K, retorna <número de 
-        bloqueios feitos no recurso resource_id> ou UNKNOWN RESOURCE. Se option for N, retorna 
-        <número de recursos bloqueados atualmente>. Se option for D, retorna 
+        Obtém o estado do serviço de gestão de bloqueios. Se option for K, retorna <número de
+        bloqueios feitos no recurso resource_id> ou UNKNOWN RESOURCE. Se option for N, retorna
+        <número de recursos bloqueados atualmente>. Se option for D, retorna
         <número de recursos desabilitados>
         """
         if option == "K":
-
             for x in self.lista:
                 if x.resource_id == resource_id:
                     return str(x.stats())
@@ -255,21 +286,18 @@ class lock_pool:
                 return "UNKNOWN RESOURCE"
 
         elif option == "N":
-
             count = 0
             for x in self.lista:
-                if x.status() == "UNLOCKED" :
+                if x.status() == "UNLOCKED":
                     count += 1
             return str(count)
 
         elif option == "D":
-
             count = 0
             for x in self.lista:
                 if x.status() == "DISABLED":
                     count += 1
             return str(count)
-
 
     def __repr__(self):
         """
@@ -285,21 +313,22 @@ class lock_pool:
             output += x.__repr__()
         return output
 
+
 ###############################################################################
 
 # código do programa principal
 
 if len(sys.argv) == 5:
-        if sys.argv[1] == 'localhost':
-            HOST = '127.0.0.1'
-            PORT = int(sys.argv[2])
-            num_recursos = int(sys.argv[3])
-            num_locks = int(sys.argv[4])
-        else:
-            HOST = sys.argv[1]
-            PORT = int(sys.argv[2])
-            num_recursos = int(sys.argv[3])
-            num_locks = int(sys.argv[4])
+    if sys.argv[1] == "localhost":
+        HOST = "127.0.0.1"
+        PORT = int(sys.argv[2])
+        num_recursos = int(sys.argv[3])
+        num_locks = int(sys.argv[4])
+    else:
+        HOST = sys.argv[1]
+        PORT = int(sys.argv[2])
+        num_recursos = int(sys.argv[3])
+        num_locks = int(sys.argv[4])
 else:
     print("Utilização errada do comando!")
     exit()
@@ -309,28 +338,29 @@ socket = sock_utils.create_tcp_server_socket(HOST, PORT, 1)
 
 while True:
     try:
-
-        (conn_sock,addr) = socket.accept()
+        (conn_sock, addr) = socket.accept()
         msg = conn_sock.recv(1024)
-        print('Recebi: %s' %msg)
+        print("Recebi: %s" % msg)
 
         pool.clear_expired_locks()
 
         separado = msg.decode().split()
-        comando = separado[0].upper() 
+        comando = separado[0].upper()
 
         if comando == "LOCK":
-            resp = pool.lock(separado[1],int(separado[2]),int(separado[3]),int(separado[4]))
+            resp = pool.lock(
+                separado[1], int(separado[2]), int(separado[3]), int(separado[4])
+            )
 
         elif comando == "UNLOCK":
-            resp = pool.unlock(separado[1],int(separado[2]),int(separado[3]))
-        
+            resp = pool.unlock(separado[1], int(separado[2]), int(separado[3]))
+
         elif comando == "STATUS":
             resp = pool.status(separado[1])
-        
+
         elif comando == "STATS":
             if separado[1] == "K":
-                resp = pool.stats(separado[1],int(separado[2]))
+                resp = pool.stats(separado[1], int(separado[2]))
 
             elif separado[1] == "N":
                 resp = pool.stats(separado[1])
@@ -338,13 +368,12 @@ while True:
             elif separado[1] == "D":
                 resp = pool.stats(separado[1])
 
-            
-        elif comando == "PRINT":      
+        elif comando == "PRINT":
             resp = pool.__repr__()
 
         conn_sock.sendall(resp.encode())
         conn_sock.close()
-        
+
     except KeyboardInterrupt:
         print("\n KeyboardInterrupt")
         exit()

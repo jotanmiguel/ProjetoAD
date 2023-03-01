@@ -1,7 +1,7 @@
 """
 Aplicações distribuídas - Projeto 1 - sock_utils.py
-Grupo: 2
-Números de aluno: 56908, 56954
+Grupo: 
+Números de aluno: 56908, 
 """
 import socket as s
 
