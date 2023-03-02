@@ -38,7 +38,6 @@ if type(PORT) is not int:
     
 cliente = net_client.server_connection(HOST,PORT)
 print(f'Connected to {cliente.address}:{cliente.port}')
-cliente.connect()
 
 while True:
     comandosSup = ['SUBSCR','CANCEL','STATUS','INFOS','STATIS', 'SLEEP', 'EXIT']
@@ -59,20 +58,20 @@ while True:
                     time.sleep(int(args[1]))
 
             elif comando == "SUBSCR":
-                if len(args) < 4:
-                    print("MISSING ARGUMENTS")
-                else:
-                    cliente.connect()
-                    resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2]+' '+ ID +' '+args[3])
-                    print('Resposta: %s' % resposta)
-                    cliente.close()
-
-            elif comando == "CANCEL":
                 if len(args) < 3:
                     print("MISSING ARGUMENTS")
                 else:
                     cliente.connect()
-                    resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2]+' '+ ID)
+                    resposta = cliente.send_receive(comando +' '+ args[1] +' '+ args[2]+' '+ str(ID))
+                    print('Resposta: %s' % resposta)
+                    cliente.close()
+
+            elif comando == "CANCEL":
+                if len(args) < 2:
+                    print("MISSING ARGUMENTS")
+                else:
+                    cliente.connect()
+                    resposta = cliente.send_receive(comando +' '+ args[1] +' '+ str(ID))
                     print('Resposta: %s' % resposta)
                     cliente.close()
 
@@ -81,20 +80,29 @@ while True:
                     print("MISSING ARGUMENTS")
                 else:
                     cliente.connect()
-                    resposta = cliente.send_receive(args[0] +' '+ args[1])
+                    resposta = cliente.send_receive(comando +' '+ args[1] +' '+ str(ID))
+                    print('Resposta: %s' % resposta)
+                    cliente.close()
+                    
+            elif comando == 'INFOS':
+                if len(args) < 2:
+                    print("MISSING ARGUMENTS")
+                elif args[1].upper() in ['M','K']:
+                    cliente.connect()
+                    resposta = cliente.send_receive(comando +' '+ args[1].upper()+' '+ str(ID))
                     print('Resposta: %s' % resposta)
                     cliente.close()
 
-            elif comando == 'STATS':
+            elif comando == 'STATIS':
                 if len(args) < 2:
                     print("MISSING ARGUMENTS")
-                elif args[1].upper() in ['K','N','D']:
+                elif args[1].upper() in ['L','ALL']:
                     if args[1].upper() == 'K':
                             if len(args) < 3:
                                 print("MISSING ARGUMENTS")
                             else:
                                 cliente.connect()
-                                resposta = cliente.send_receive(args[0] +' '+ args[1] +' '+ args[2])
+                                resposta = cliente.send_receive(comando +' '+ args[1] +' '+ args[2])
                                 print('Resposta: %s' % resposta)
                                 cliente.close()
                     else:
@@ -102,20 +110,12 @@ while True:
                                 print("MISSING ARGUMENTS")
                             else:
                                 cliente.connect()
-                                resposta = cliente.send_receive(args[0] +' '+ args[1])
+                                resposta = cliente.send_receive(comando +' '+ args[1])
                                 print('Resposta: %s' % resposta)
                                 cliente.close()
-
-            elif comando == "PRINT":
-                    cliente.connect()
-                    resposta = cliente.send_receive(args[0])
-                    print('Resposta: %s' % resposta)
-                    cliente.close()
                 
         else:
             print("UNKNOWN COMMAND")
-
-
 
     except KeyboardInterrupt:
         print("\n KeyboardInterrupt")
