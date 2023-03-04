@@ -14,8 +14,6 @@ import re
 import net_client
 
 #programa principal
-
-def test_common_prefix():
     
 def is_valid_ip_address(ip):
     """
