@@ -9,6 +9,7 @@ Números de aluno: 56908, 56954
 # zona para fazer importação
 
 import sock_utils, time
+
 class resource_lock:
     def __init__(self, resource_id):
         """
