@@ -1,5 +1,5 @@
 """
-Aplicações distribuídas - Projeto 1 - sock_utils.py
+Aplicações distribuídas - Projeto 2 - sock_utils.py
 Grupo: 33
 Números de aluno: 56908, 56916
 """

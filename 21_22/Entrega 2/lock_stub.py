@@ -6,11 +6,8 @@ Grupo: 2
 Números de aluno: 56908, 56954
 """
 
-import pickle
 import socket as s
-import struct
 import sys
-from typing import List, Union
 from net_client import server_connection
 sys.path.insert(0, '..')
 import sock_utils
@@ -60,7 +57,6 @@ class ListStub:
             return "UNKNOWN COMMAND"
         return resp
             
-
     def lock(self, type, rId, tLim, cId):
         """
         Metodo para bloquear um ficheiro rId para leitura ou escrita (type = R or typer = W, respetivamente)

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-Aplicações Distribuídas - Projeto 1 - ticker_client.py
+Aplicações Distribuídas - Projeto 2 - ticker_client.py
 Grupo: 33
 Números de aluno: 56908, 56916
 """
@@ -41,6 +41,7 @@ if type(ID) is not int:
     exit()
 if HOST == "localhost":
     HOST = "127.0.0.1"
+    PORT = int(sys.argv[3])
 if (HOST != "localhost" and not is_valid_ip_address(HOST)):
     print("UNKNOWN-COMMAND")
     exit()
@@ -50,13 +51,15 @@ if type(PORT) is not int:
     
 cliente = net_client.server_connection(HOST,PORT)
 print(f'Connected to {HOST}:{cliente.port}')
+cliente.connect()
 
 while True:
     comandosSup = ['SUBSCR','CANCEL','STATUS','INFOS','STATIS', 'SLEEP', 'EXIT']
 
     try:
         inputLinha = input("Comando > ")
-        args = inputLinha.split()
+        args = [inputLinha.split()[0]]
+        args += [int(arg) for arg in inputLinha.split()[1:]]
         comando = args[0].upper()
 
         if comando in comandosSup:
@@ -70,15 +73,16 @@ while True:
                     print("UNKNOWN COMMAND")
                 else:
                     time.sleep(int(args[1]))
+                    
             elif comando == "SUBSCR":
                 if len(args) < 3:
                     print("MISSING ARGUMENTS")
-                elif len(args) > 4:
+                elif len(args) > 3:
                     print("UNKNOWN COMMAND")
                 else:
-                    cliente.connect()
-                    msg = [10, args[1], args[2], ID]
-                    resposta = cliente.send_receive(pickle.dumps(msg))
+                    msg = [10, args[1], int(args[2]), ID]
+                    print(cliente.send_receive(pickle.dumps(msg, -1)))
+                    resposta = cliente.send_receive(pickle.dumps(msg, -1))
                     print('Resposta: %s' % pickle.loads(resposta))
                     cliente.close()
 
@@ -146,7 +150,7 @@ while True:
                 
         else:
             print("UNKNOWN COMMAND")
-
+        cliente.close()
     except KeyboardInterrupt:
         print("\n KeyboardInterrupt")
         exit()

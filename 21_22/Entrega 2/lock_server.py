@@ -8,7 +8,6 @@ Números de aluno: 56908, 56954
 
 import sys
 import sock_utils
-import time
 import socket as s
 import pickle
 from lock_pool import lock_pool
@@ -29,15 +28,13 @@ if len(sys.argv) == 5:
             num_locks = int(sys.argv[4])
 else:
     print("Utilização errada do comando!")
-    
-
+    exit()
 
 socket = sock_utils.create_tcp_server_socket("", PORT, 5)
 pool = lock_pool(num_recursos, num_locks)
 skel = ListSkeleton(pool)
 
 socket_list = [socket]
-
 
 while True:
     try:
@@ -51,9 +48,6 @@ while True:
                     print(f'Novo cliente ligado desde {addr}:{port}')                    
             else:
                 try:
-
-
-
                     pool.clear_expired_locks()                    
                     msg = conn_sock.recv(1024)
                     recebido = pickle.loads(msg)
@@ -65,7 +59,6 @@ while True:
                         conn_sock.sendall(skel.listToBytes(enviado))
                         conn_sock.close()  
                       
-                    
                     else:
                         print("Conexão interrompida")
                         conn_sock.close()  
@@ -75,5 +68,4 @@ while True:
                     None
     except KeyboardInterrupt:
         print("\n KeyboardInterrupt")
-        exit()
-socket.close() 
+        exit() 

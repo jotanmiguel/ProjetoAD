@@ -7,8 +7,8 @@ Números de aluno: 56908, 56954
 """
 
 import pickle
-from tkinter import RIDGE
 from lock_pool import lock_pool
+
 class ListSkeleton:
     def __init__(self, pool):
         self.pool = pool
