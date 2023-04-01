@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 Aplicações Distribuídas - Projeto 2 - net_client.py
-Grupo: 33
-Números de aluno: 56908, 56916
+Grupo: 2
+Números de aluno: 56908, 56954
 """
 
 # zona para fazer importação
 
-import pickle
-import struct
 import sock_utils
+import struct
 
 # definição da classe server_connection 
 
@@ -31,15 +30,21 @@ class server_connection:
         Estabelece a ligação ao servidor especificado na inicialização.
         """
         self.sock = sock_utils.create_tcp_client_socket(self.address, self.port)
-        self.sock.connect((self.address, self.port))
 
     def send_receive(self, data):
         """
         Envia os dados contidos em data para a socket da ligação, e retorna
         a resposta recebida pela mesma socket.
         """
+        size_bytes = struct.pack('i',len(data))
+
+        self.sock.sendall(size_bytes)
         self.sock.sendall(data)
-        reply = self.sock.recv(1024)
+
+        resp_bytes = self.sock.recv(4)
+        size = struct.unpack('i',resp_bytes)[0]
+        reply = self.sock.recv(size)
+        
         return reply
 
     def close(self):

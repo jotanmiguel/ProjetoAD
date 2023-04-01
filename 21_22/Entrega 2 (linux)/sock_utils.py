@@ -3,7 +3,7 @@
 """
 Aplicações distribuídas - Projeto 2 - sock_utils.py
 Grupo: 2
-Números de aluno: 56908, 56954
+Números de aluno: 56908, 56916
 """
 import socket as s
 
@@ -16,7 +16,7 @@ def create_tcp_server_socket(address, port, queue_size):
 
 def create_tcp_client_socket(address, port):
 	sock = s.socket(s.AF_INET, s.SOCK_STREAM)
-	sock.connect((address.port))
+	sock.connect((address,port))
 	return sock
 
 def receive_all(socket, length):

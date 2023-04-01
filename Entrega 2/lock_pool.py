@@ -3,13 +3,12 @@
 """
 Aplicações Distribuídas - Projeto 2 - lock_pool.py
 Grupo: 2
-Números de aluno: 56908, 56916
+Números de aluno: 56908, 56954
 """
 
 # zona para fazer importação
 
 import sock_utils, time
-
 class resource_lock:
     def __init__(self, resource_id):
         """

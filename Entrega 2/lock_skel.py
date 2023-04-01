@@ -3,7 +3,7 @@
 """
 Aplicações Distribuídas - Projeto 2 - lock_skel.py
 Grupo: 2
-Números de aluno: 56908, 56916
+Números de aluno: 56908, 56954
 """
 
 import pickle

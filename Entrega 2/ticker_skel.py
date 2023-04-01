@@ -11,7 +11,7 @@ class ListSkeleton:
         if pedido is None or len(pedido) == 0:
             resposta.append('INVALID-MESSAGE')
         else:
-            cmd = cmd
+            cmd = pedido[0]
             if cmd == 10:
                 cId = pedido[3]
                 rId = pedido[1]
