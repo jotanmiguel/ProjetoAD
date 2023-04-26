@@ -30,7 +30,7 @@ def connect_db(dbname: str):
         cursor.execute("CREATE TABLE airlines (id INTEGER PRIMARY KEY,sigla TEXT,designacao TEXT);")
         cursor.execute("CREATE TABLE locations (id INTEGER PRIMARY KEY, name TEXT UNIQUE, IATA TEXT UNIQUE, wea_name TEXT UNIQUE);")
         airlines = [(1, "TAP", "Companhia aérea baseada em portugal"), (2, "KLM", "Companhia aérea baseada na Holanda"), (3, "Lufthansa", "Companhia aérea baseada na Alemanha"), (4, "Air France", "Companhia aérea baseada em França"), (5, "British Airways", "Companhia aérea baseada no Reino Unido"), (6, "Iberia", "Companhia aérea baseada em Espanha"), (7, "Alitalia", "Companhia aérea baseada em Itália"), (8, "Air Europa", "Companhia aérea baseada em Espanha"), (9, "Ryanair", "Companhia aérea baseada na Irlanda"), (10, "Easyjet", "Companhia aérea baseada no Reino Unido")]
-        locations = [(1, "Lisboa", "LIS", "portela"), (2, "Madrid", "MAD", "barajas"), (3, "Paris", "CDG", "charles de gaulle"), (4, "Londres", "LHR", "heathrow"), (5, "Roma", "FCO", "fiumicino"), (6, "Amesterdão", "AMS", "schiphol"), (7, "Berlim", "TXL", "tegel"), (8, "Barcelona", "BCN", "el prat"), (9, "Milão", "MXP", "malpensa"), (10, "Dublin", "DUB", "dublin" )]
+        locations = [(1, "Lisboa", "LIS", "Portela"), (2, "Madrid", "MAD", "Barajas"), (3, "Paris", "CDG", "Roissy-en-France"), (4, "Dublin", "DUB", "Collinstown"), (5, "Bruxelas", "BRU", "Zaventem"), (6, "Liubliana", "LJU", "Zgornji Brnik"), (7, "Amsterdão", "AMS", "Schiphol"), (8, "Berlim", "TXL", "Tegel"), (9, "Roma", "FCO", "Fiumicino"), (10, "Viena", "VIE", "Schwechat")]
         cursor.executemany("INSERT INTO airlines VALUES (?,?,?)", airlines)
         cursor.executemany("INSERT INTO locations VALUES (?,?,?,?)", locations)
         connection.commit()
