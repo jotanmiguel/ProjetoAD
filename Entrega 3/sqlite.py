@@ -24,14 +24,14 @@ def connect_db(dbname: str):
     cursor = connection.cursor()
     if not db_is_created:
         cursor.execute("PRAGMA foreign_keys = ON;")
-        cursor.execute("CREATE TABLE weather (id INTEGER PRIMARY KEY, date TEXT, location TEXT, FOREIGN KEY(location) REFERENCES locations(wea_name) ON DELETE CASCADE);")
-        cursor.execute("CREATE TABLE roundtrips (id INTEGER PRIMARY KEY,cost INTEGER,id_leg0 INTEGER,id_leg1 INTEGER,FOREIGN KEY(id_leg0) REFERENCES legs(id) ON DELETE CASCADE, FOREIGN KEY(id_leg1) REFERENCES legs(id) ON DELETE CASCADE);")
-        cursor.execute("CREATE TABLE legs (id INTEGER PRIMARY KEY, dep_IATA TEXT, arr_IATA TEXT, dep_datetime TEXT, arr_datetime TEXT, duration_min INTEGER, airlineCodes TEXT NULL, FOREIGN KEY (airlineCodes) REFERENCES airline(code), FOREIGN KEY (dep_IATA) REFERENCES locations(IATA), FOREIGN KEY (arr_IATA) REFERENCES locations(IATA));")
-        cursor.execute("CREATE TABLE airlines (id INTEGER PRIMARY KEY,sigla TEXT,designacao TEXT);")
+        cursor.execute("CREATE TABLE weather (id INTEGER PRIMARY KEY, date TEXT, location TEXT, condition TEXT, mintemp_c INTEGER, maxtemp_c INTEGER, FOREIGN KEY(location) REFERENCES locations(wea_name) ON DELETE CASCADE);")
+        cursor.execute("CREATE TABLE roundtrips (id TEXT PRIMARY KEY,cost INTEGER,id_leg0 TEXT,id_leg1 TEXT,FOREIGN KEY(id_leg0) REFERENCES legs(id) ON DELETE CASCADE, FOREIGN KEY(id_leg1) REFERENCES legs(id) ON DELETE CASCADE);")
+        cursor.execute("CREATE TABLE legs (id TEXT PRIMARY KEY, dep_IATA TEXT, arr_IATA TEXT, dep_datetime TEXT, arr_datetime TEXT, duration_min INTEGER, airlineCodes TEXT NULL, FOREIGN KEY (airlineCodes) REFERENCES airline(code), FOREIGN KEY (dep_IATA) REFERENCES locations(IATA), FOREIGN KEY (arr_IATA) REFERENCES locations(IATA));")
+        cursor.execute("CREATE TABLE airlines (code TEXT PRIMARY KEY,sigla TEXT);")
         cursor.execute("CREATE TABLE locations (id INTEGER PRIMARY KEY, name TEXT UNIQUE, IATA TEXT UNIQUE, wea_name TEXT UNIQUE);")
-        airlines = [(1, "TAP", "Companhia aérea baseada em portugal"), (2, "KLM", "Companhia aérea baseada na Holanda"), (3, "Lufthansa", "Companhia aérea baseada na Alemanha"), (4, "Air France", "Companhia aérea baseada em França"), (5, "British Airways", "Companhia aérea baseada no Reino Unido"), (6, "Iberia", "Companhia aérea baseada em Espanha"), (7, "Alitalia", "Companhia aérea baseada em Itália"), (8, "Air Europa", "Companhia aérea baseada em Espanha"), (9, "Ryanair", "Companhia aérea baseada na Irlanda"), (10, "Easyjet", "Companhia aérea baseada no Reino Unido")]
-        locations = [(1, "Lisboa", "LIS", "Portela"), (2, "Madrid", "MAD", "Barajas"), (3, "Paris", "CDG", "Roissy-en-France"), (4, "Dublin", "DUB", "Collinstown"), (5, "Bruxelas", "BRU", "Zaventem"), (6, "Liubliana", "LJU", "Zgornji Brnik"), (7, "Amsterdão", "AMS", "Schiphol"), (8, "Berlim", "TXL", "Tegel"), (9, "Roma", "FCO", "Fiumicino"), (10, "Viena", "VIE", "Schwechat")]
-        cursor.executemany("INSERT INTO airlines VALUES (?,?,?)", airlines)
+        airlines = [('EI', 'Aer Lingus'), ('JU', 'Air Serbia'), ('OS', 'Austrian Airlines'), ('SN', 'Brussels Airlines'), ('U2', 'EasyJet'), ('EC', 'easyJet Europe'), ('EW', 'Eurowings'), ('IB', 'Iberia'), ('I2', 'Iberia Express'), ('LH', 'Lufthansa'), ('CL', 'Lufthansa CityLine'), ('AL', 'Malta Air'), ('NI', 'Portugália Airlines'), ('FR', 'Ryanair'), ('TP', 'TAP Air Portugal'), ('X3', 'TUIfly'), ('VY', 'Vueling Airlines'), ('W6', 'Wizz Air'), ('W9', 'Wizz Air UK')]
+        locations = [ (1, 'Amsterdam', 'AMS', 'Amsterdam'), (2, 'Berlin', 'BER', 'Berlin'), (3, 'Brussels', 'BRU', 'Brussels'), (4, 'Dublin', 'DUB', 'Dublin'), (5, 'Rome', 'FCO', 'Rome'), (6, 'Ljubljana', 'LJU', 'Ljubljana'), (7, 'Madrid', 'MAD', 'Madrid'), (8, 'Paris Orly', 'ORY', 'Paris'), (9, 'Vienna', 'VIE', 'Vienna'), (10, 'Lisbon', 'LIS', 'Lisbon' )]
+        cursor.executemany("INSERT INTO airlines VALUES (?,?)", airlines)
         cursor.executemany("INSERT INTO locations VALUES (?,?,?,?)", locations)
         connection.commit()
     return connection, cursor

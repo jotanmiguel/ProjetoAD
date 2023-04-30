@@ -12,7 +12,6 @@ import os
 
 # while True:
 comandosSup = ['SEARCH', 'FILTER', 'DETAILS']
-
 inputUser = input("Introduza o comando: ")
 args = inputUser.split()
 op = args[0].upper()
@@ -29,15 +28,19 @@ if op in comandosSup:
             }
         r = requests.get(URL + '/search', json=json.dumps(dados), headers={'Content-type': 'application/json'})
         print(r.content.decode())
-    elif op == "FILTER":
-        if args[1] == "DIVERSIFY":
-            dados = {
-                'roundtrips': list(args[2])
-                }
-            r = requests.get(URL + '/filter/diversify', json=json.dumps(dados), headers={'Content-type': 'application/json'})
-            print(r.content.decode())
+    # elif op == "FILTER":
+    #     if args[1] == "DIVERSIFY":
+    #         dados = {
+    #             'roundtrips': list(args[2])
+    #             }
+    #         r = requests.get(URL + '/filter/diversify', json=json.dumps(dados), headers={'Content-type': 'application/json'})
+    #         print(r.content.decode())
     elif op == "DETAILS":
-        pass
+        dados = {
+            'trip_ids': args[1], 
+        }
+        r = requests.get(URL + '/search', json=json.dumps(dados), headers={'Content-type': 'application/json'})
+        print(r.content.decode())
 else:
     print("UNKNOWN-COMMAND")
     
