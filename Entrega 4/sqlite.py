@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-Aplicações Distribuídas - Projeto 3 - sqlite.py
+Aplicações Distribuídas - Projeto 4 - sqlite.py
 Grupo: 33
 Números de aluno: 56908, 56916
 """
@@ -29,6 +29,8 @@ def connect_db(dbname: str):
         cursor.execute("CREATE TABLE legs (id TEXT PRIMARY KEY, dep_IATA TEXT, arr_IATA TEXT, dep_datetime TEXT, arr_datetime TEXT, duration_min INTEGER, airlineCodes TEXT NULL, FOREIGN KEY (airlineCodes) REFERENCES airline(code), FOREIGN KEY (dep_IATA) REFERENCES locations(IATA), FOREIGN KEY (arr_IATA) REFERENCES locations(IATA));")
         cursor.execute("CREATE TABLE airlines (code TEXT PRIMARY KEY,sigla TEXT);")
         cursor.execute("CREATE TABLE locations (id INTEGER PRIMARY KEY, name TEXT UNIQUE, IATA TEXT UNIQUE, wea_name TEXT UNIQUE);")
+        cursor.execute("CREATE TABLE search_trips (search_id INTEGER PRIMARY KEY, trip_ids TEXT, FOREIGN KEY (search_id) REFERENCES searches(search_id))")
+        cursor.execute("CREATE TABLE searches (search_id INTEGER PRIMARY KEY, client_id TEXT, search_params TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);")
         airlines = [('EI', 'Aer Lingus'), ('JU', 'Air Serbia'), ('OS', 'Austrian Airlines'), ('SN', 'Brussels Airlines'), ('U2', 'EasyJet'), ('EC', 'easyJet Europe'), ('EW', 'Eurowings'), ('IB', 'Iberia'), ('I2', 'Iberia Express'), ('LH', 'Lufthansa'), ('CL', 'Lufthansa CityLine'), ('AL', 'Malta Air'), ('NI', 'Portugália Airlines'), ('FR', 'Ryanair'), ('TP', 'TAP Air Portugal'), ('X3', 'TUIfly'), ('VY', 'Vueling Airlines'), ('W6', 'Wizz Air'), ('W9', 'Wizz Air UK')]
         locations = [ (1, 'Amsterdam', 'AMS', 'Amsterdam'), (2, 'Berlin', 'BER', 'Berlin'), (3, 'Brussels', 'BRU', 'Brussels'), (4, 'Dublin', 'DUB', 'Dublin'), (5, 'Rome', 'FCO', 'Rome'), (6, 'Ljubljana', 'LJU', 'Ljubljana'), (7, 'Madrid', 'MAD', 'Madrid'), (8, 'Paris Orly', 'ORY', 'Paris'), (9, 'Vienna', 'VIE', 'Vienna'), (10, 'Lisbon', 'LIS', 'Lisbon' )]
         cursor.executemany("INSERT INTO airlines VALUES (?,?)", airlines)

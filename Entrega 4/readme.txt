@@ -1,14 +1,10 @@
 Funções:
-- search: 50%
-- filter: 0%
-- filter diversify: 0%
-- details: 90% (No teste disponibilizado pelo prof., o custo da viagem é diferente do esperado)
-
-cliente.py: 20%
-- acho que o search funciona, mas nao tenho certeza
+- search: 100%
+- filter: 70%
 
 servidor.py: 50%
-- details so funciona depois de search
-- filter nao funciona
-- filter diversify nao funciona
-- search funciona mas com problemas (retorna um numero diferente de viagens do que o esperado, )
+- login funciona, mas nao existe diferenciação entre utilizadores.
+- filter funciona mas como o ponto acima nao funciona, não ha a certeza se funciona como o suposto.
+- filter não filtra consecutivamente.
+- search funciona mas com problemas (nao da para diferenciar utilizadores)
+- não ha a parte do zookeeper.

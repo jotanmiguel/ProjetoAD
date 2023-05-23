@@ -1,18 +1,30 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-Aplicações Distribuídas - Projeto 3 - servidor.py
+Aplicações Distribuídas - Projeto 4 - servidor.py
 Grupo: 33
 Números de aluno: 56908, 56916
 """
 
 import ast
+from functools import wraps
+import os
 from os.path import isfile
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify
-import sqlite3, sqlite, requests, sqlite, json
+import secrets
+import ssl
+import sqlite3
+import requests
+import json
+import sqlite
+from flask import Flask, make_response, redirect, request, jsonify, session, url_for
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.oauth2 import id_token
+from google.auth.transport import requests as transport
+from kazoo.client import KazooClient
 
 app = Flask(__name__)
+zk = KazooClient(hosts='localhost:2181')
 
 def connect_db(dbname):
     db = sqlite3.connect(dbname)
@@ -20,6 +32,18 @@ def connect_db(dbname):
     return db
 
 # condicoes para bom tempo
+good_weather_conditions = [
+    "Clear",
+    "Sunny",
+    "Mostly sunny",
+    "Partly cloudy",
+    "Mostly clear",
+    "Scattered clouds",
+    "Few clouds",
+    "Fair",
+    "Pleasant",
+    "Mild"
+]
 dates = [((datetime.strptime('2023-04-26', '%Y-%m-%d') + timedelta(days=x)).strftime("%Y-%m-%d"), (datetime.strptime('2023-04-26', '%Y-%m-%d') + timedelta(days=(x + 3))).strftime("%Y-%m-%d")) for x in range(0, 11)]
 
 URLF = "http://lmpinto.eu.pythonanywhere.com/roundtrip/ygyghjgjh/"
@@ -140,42 +164,179 @@ def getDetails(viagem_ids:list):
             for w in weather:
                 if w["location"] == dst["wea_name"] and w["date"] >= leg0["arr_datetime"][:10] and w["date"] <= leg1["dep_datetime"][:10]:
                     weather_data[str(len(weather_data))] = w["condition"]
-            trips.append({"cost":roundtrip["cost"], "dst":leg0["dep_IATA"],"leg0":leg0, "leg1":leg1, "src":leg0["arr_IATA"], "trip_id":id, "weather":weather_data})
+            trips.append({"cost":roundtrip["cost"], "dst":leg0["arr_IATA"],"leg0":leg0, "leg1":leg1, "src":leg0["dep_IATA"], "trip_id":id, "weather":weather_data})
     
     db.close()
-    return trips
+    return trips   
+
+def filterTrips(search_id: int, location=None, airline=None, days_of_sun=None):
+    db = connect_db("BD.db")
+
+    # Retrieve the trip IDs associated with the search ID from the search_trips table
+    trip_ids = db.execute("SELECT trip_ids FROM search_trips WHERE search_id = ?", (search_id,)).fetchone()
+    if not trip_ids:
+        db.close()
+        return "No search available!"
     
+    trip_ids = trip_ids[0].split(", ")
+
+    # Get the trip details for the retrieved trip IDs
+    trips = getDetails(trip_ids)
+    filtered_trips = []
+
+    db.close()
+    
+    if all(param is None for param in [location, airline, days_of_sun]):
+        filtered_trips = trips
+        return filtered_trips
+    else:
+        filtered_trips = []
+        for trip in trips:
+            if (not location or location == trip["dst"]) and (not airline or airline in trip["leg0"]["airlineCodes"]):
+                good_weather = 0
+                for weather in trip["weather"].values():
+                    if weather in good_weather_conditions:
+                        good_weather += 1
+                if not days_of_sun or int(good_weather) == int(days_of_sun):
+                    filtered_trips.append(trip)
+
+        db.close()
+
+    return filtered_trips
+
+def filterTripsDiversify(trips: list):
+    filtered_trips = getDetails(trips)
+
+    return filtered_trips
+
+# Google OAuth 2 configuration
+CLIENT_SECRETS_FILE = 'client/client_secret_486662482266-2hi4up7rsabt8sodrpm44qtr2i5bf54k.apps.googleusercontent.com.json'
+SCOPES = ['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/calendar.events']
+REDIRECT_URI = 'https://localhost:5000/callback'
+
+app.secret_key = 'your_secret_key'
+
 @app.route('/')
 def index():
-    return "Hello World!"
+    print(session.get('credentials'))
+    return make_response('Bem vindo à escapadinha solarenga!')
+
+@app.route('/login')
+def login():
+    auth_url, state = flow.authorization_url(prompt='consent')
+    session['state'] = state
+    return redirect(auth_url, code=302)
+
+@app.route('/callback')
+def callback():
+    #auth_url, state = flow.authorization_url(prompt='consent')
+    code = request.args.get("code")
+
+    flow.fetch_token(code=code)
     
-# def get_database_connection():
-#     conn = sqlite3.connect('database.db')
-#     return conn
+    session['client_id'] = flow.credentials.client_id
+    session['credentials'] = flow.credentials.to_json()
+
+    with open('token.json', 'w') as token_file:
+        token_file.write(flow.credentials.to_json())
+        
+    return "Logged in successfully!"
+
+@app.route('/logout')
+def logout():
+    session.pop('credentials')
+    os.remove('token.json')
+    return "Logged out successfully!"
+
+def login_required(view_func):
+    """
+    Decorator that redirects to the login page if the user is not authenticated.
+    """
+    @wraps(view_func)
+    def decorated_func(*args, **kwargs):
+        # Check if the user is authenticated
+        if 'credentials' not in session:
+            return "Unauthorized. Please /login"  # Redirect to the login page
+        return view_func(*args, **kwargs)
+    
+    return decorated_func
+
+@app.route('/add_event', methods=['POST'])
+@login_required
+def add_event():
+    pass
 
 @app.route('/search', methods=['GET'])
+@login_required
 def search():
     location = request.args.get('location')
     cost = request.args.get('cost')
     
-    weather = getWeather()
+    db = connect_db("BD.db")
+    results = db.execute("Select * FROM searches").fetchall()
+    search_id = len(results)
+    # Check if the search has already been performed by the current user
+    existing_search = db.execute("SELECT * FROM searches WHERE client_id=? AND search_params=?", (session['client_id'], f"location={location}&cost={cost}")).fetchone()
+
     flight_ids = [flight["id"] for flight in getFlights(location, cost)[0]]
-    flights = getDetails(flight_ids)
-    return jsonify(flights)
 
-# @app.route('/filter', methods=['POST'])
-# def filter():
-#     data = request.get_json()
-#     viagem_ids = data['viagem_ids']
-#     location = data.get('location')
-#     airline = data.get('airline')
-#     sun = data.get('sun')
+    if not existing_search:
+        db.execute("INSERT INTO searches (search_id, client_id, search_params) VALUES (?, ?, ?)", (search_id, session['client_id'], f"location={location}&cost={cost}"))
+        db.commit()
+        getWeather()
+        db.execute("INSERT INTO search_trips (search_id, trip_ids) VALUES (?, ?)", (search_id, ', '.join(flight_ids)))
+        db.commit()
+        search_id += 1
+        db.close()
+        return jsonify({'search id':search_id, 'trips':flights})
+    else: 
+        flights = getDetails(flight_ids)
+        db.close()
+        return jsonify({'search id':search_id, 'trips':flights})
 
-#     # Implemente a filtragem das viagens aqui
+    
 
-#     return jsonify(viagens_filtradas)
+@app.route('/filter', methods=['GET'])
+@login_required
+def filter():
+    search_id = request.args.get('s_id')
+    location = request.args.get('location')
+    airline = request.args.get('airline')
+    days_of_sun = request.args.get('days_of_sun')
+    
+    if days_of_sun:
+        if int(days_of_sun) <= 4 or int(days_of_sun) >= 2:
+            filtered_trips = filterTrips(int(search_id), location, airline, days_of_sun)
+        else:
+            return jsonify("Número de dias de sol inválido!")
+    else:
+        filtered_trips = filterTrips(int(search_id), location, airline, days_of_sun)
+    
+    if filtered_trips:
+        return jsonify(filtered_trips)
+    else:
+        return jsonify("Sem viagens!")
+
+#passar para a funcao filterTripsDiversity  
+@app.route('/filter/diversify', methods=['GET'])
+@login_required
+def filter_diversify():       
+    trip_ids = request.args.getlist('trip_ids')[0].split(',')
+    trips = getDetails(trip_ids)
+    
+    filtered_trips = {}
+
+    for trip in trips:
+        dst = trip['dst']
+        cost = trip['cost']
+        if dst not in filtered_trips or cost < filtered_trips[dst]['cost']:
+            filtered_trips[dst] = trip
+
+    return jsonify(list(filtered_trips.values()))
+
 
 @app.route('/details', methods=['GET'])
+@login_required
 def details():
     viagem_id = [request.args.get('trip_id')]
     
@@ -189,4 +350,10 @@ if __name__ == '__main__':
     db,_ = sqlite.connect_db("BD.db")
     getWeather()
     db.close()
-    app.run(debug=True, port=5000)
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+    context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_SERVER)
+    context.verify_mode = ssl.CERT_REQUIRED
+    context.load_verify_locations(cafile='certs/root.pem')
+    context.load_cert_chain(certfile='server/serv.crt',keyfile='server/serv.key')
+    flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES, redirect_uri=REDIRECT_URI)
+    app.run('localhost', ssl_context=context, debug = True)

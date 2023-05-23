@@ -20,6 +20,18 @@ def connect_db(dbname):
     return db
 
 # condicoes para bom tempo
+good_weather_conditions = [
+    "Clear",
+    "Sunny",
+    "Mostly sunny",
+    "Partly cloudy",
+    "Mostly clear",
+    "Scattered clouds",
+    "Few clouds",
+    "Fair",
+    "Pleasant",
+    "Mild"
+]
 dates = [((datetime.strptime('2023-04-26', '%Y-%m-%d') + timedelta(days=x)).strftime("%Y-%m-%d"), (datetime.strptime('2023-04-26', '%Y-%m-%d') + timedelta(days=(x + 3))).strftime("%Y-%m-%d")) for x in range(0, 11)]
 
 URLF = "http://lmpinto.eu.pythonanywhere.com/roundtrip/ygyghjgjh/"
@@ -140,18 +152,32 @@ def getDetails(viagem_ids:list):
             for w in weather:
                 if w["location"] == dst["wea_name"] and w["date"] >= leg0["arr_datetime"][:10] and w["date"] <= leg1["dep_datetime"][:10]:
                     weather_data[str(len(weather_data))] = w["condition"]
-            trips.append({"cost":roundtrip["cost"], "dst":leg0["dep_IATA"],"leg0":leg0, "leg1":leg1, "src":leg0["arr_IATA"], "trip_id":id, "weather":weather_data})
+            trips.append({"cost":roundtrip["cost"], "dst":leg0["arr_IATA"],"leg0":leg0, "leg1":leg1, "src":leg0["dep_IATA"], "trip_id":id, "weather":weather_data})
     
     db.close()
     return trips
+
+def filterTrips(location, airline, days_of_sun):
+    trips, _ = getFlights(location, 999999999999)
+    trips = getDetails([trip["id"] for trip in trips])
     
-@app.route('/')
-def index():
-    return "Hello World!"
+    filtered_trips = []
     
-# def get_database_connection():
-#     conn = sqlite3.connect('database.db')
-#     return conn
+    for trip in trips:
+        good_weather = 0
+        if (trip["leg0"]["airlineCodes"][0] == trip["leg1"]["airlineCodes"][0]) and trip["leg0"]["airlineCodes"][0] == airline:
+            for weather in trip["weather"].values():
+                if weather in good_weather_conditions:
+                    good_weather += 1
+            if int(good_weather) == int(days_of_sun):
+                filtered_trips.append(trip)
+                
+    return filtered_trips
+
+def filterTripsDiversify(trips: list):
+    filtered_trips = getDetails(trips)
+
+    return filtered_trips
 
 @app.route('/search', methods=['GET'])
 def search():
@@ -163,17 +189,38 @@ def search():
     flights = getDetails(flight_ids)
     return jsonify(flights)
 
-# @app.route('/filter', methods=['POST'])
-# def filter():
-#     data = request.get_json()
-#     viagem_ids = data['viagem_ids']
-#     location = data.get('location')
-#     airline = data.get('airline')
-#     sun = data.get('sun')
+@app.route('/filter', methods=['GET'])
+def filter():
+    location = request.args.get('location')
+    airline = request.args.get('airline')
+    days_of_sun = request.args.get('days_of_sun')
+    
+    if int(days_of_sun) <= 4 or int(days_of_sun) >= 2:
+        filtered_trips = filterTrips(location, airline, days_of_sun)
+    else:
+        return jsonify("Número de dias de sol inválido!")
+    
+    if filtered_trips:
+        return jsonify(filtered_trips)
+    else:
+        return jsonify("Viagem não encontrada!")
 
-#     # Implemente a filtragem das viagens aqui
+#passar para a funcao filterTripsDiversity  
+@app.route('/filter/diversify', methods=['GET'])
+def filter_diversify():       
+    trip_ids = request.args.getlist('trip_ids')[0].split(',')
+    trips = getDetails(trip_ids)
+    
+    filtered_trips = {}
 
-#     return jsonify(viagens_filtradas)
+    for trip in trips:
+        dst = trip['dst']
+        cost = trip['cost']
+        if dst not in filtered_trips or cost < filtered_trips[dst]['cost']:
+            filtered_trips[dst] = trip
+
+    return jsonify(list(filtered_trips.values()))
+
 
 @app.route('/details', methods=['GET'])
 def details():
