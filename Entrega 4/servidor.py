@@ -100,12 +100,14 @@ def getFlights(location:str, cost:int):
     db.execute("DELETE FROM legs")
     dep = db.execute("Select * from locations where name = ?", [location]).fetchone()[2]
     locations = db.execute("SELECT * FROM locations").fetchall()
+    print(dep, [location[1] for location in locations])
     roundtrips = []
     legs_data = []
     for location in locations:
         arr = db.execute("Select * from locations where name = ?", [location[1]]).fetchone()[2]
         for date in dates:
             response = requests.get(URLF + f"{dep}/{arr}/{date[0]}/{date[1]}/1/0/0/Economy/EUR")
+            print(response.url)
             if response.status_code == 200:
                 fares, trips, legs = response.json()["fares"], response.json()["trips"], response.json()["legs"]
                 for leg,fare in zip(legs, fares):
@@ -277,7 +279,7 @@ def search():
     search_id = len(results)
     # Check if the search has already been performed by the current user
     existing_search = db.execute("SELECT * FROM searches WHERE client_id=? AND search_params=?", (session['client_id'], f"location={location}&cost={cost}")).fetchone()
-
+    
     flight_ids = [flight["id"] for flight in getFlights(location, cost)[0]]
 
     if not existing_search:
@@ -288,6 +290,7 @@ def search():
         db.commit()
         search_id += 1
         db.close()
+        flights = getDetails(flight_ids)
         return jsonify({'search id':search_id, 'trips':flights})
     else: 
         flights = getDetails(flight_ids)
