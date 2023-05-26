@@ -211,12 +211,16 @@ def filterTripsDiversify(trips: list):
 
     return filtered_trips
 
+# 3 - Auth0
 # Google OAuth 2 configuration
 CLIENT_SECRETS_FILE = 'client/client_secret_486662482266-2hi4up7rsabt8sodrpm44qtr2i5bf54k.apps.googleusercontent.com.json'
 SCOPES = ['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/calendar.events']
 REDIRECT_URI = 'https://localhost:5000/callback'
 
 app.secret_key = 'your_secret_key'
+
+# 2
+# -----------------Rotas--------------------
 
 @app.route('/')
 def index():
@@ -349,13 +353,17 @@ def details():
     else:
         return jsonify("Viagem não encontrada!")
 
+
 if __name__ == '__main__':
     db,_ = sqlite.connect_db("BD.db")
     getWeather()
     db.close()
+    # Auth0?
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+    # SSL e TLS- 4
     context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_SERVER)
     context.verify_mode = ssl.CERT_REQUIRED
+    # Certificados do servidor - 5
     context.load_verify_locations(cafile='certs/root.pem')
     context.load_cert_chain(certfile='server/serv.crt',keyfile='server/serv.key')
     flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES, redirect_uri=REDIRECT_URI)

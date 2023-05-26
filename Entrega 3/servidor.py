@@ -34,16 +34,21 @@ good_weather_conditions = [
 ]
 dates = [((datetime.strptime('2023-04-26', '%Y-%m-%d') + timedelta(days=x)).strftime("%Y-%m-%d"), (datetime.strptime('2023-04-26', '%Y-%m-%d') + timedelta(days=(x + 3))).strftime("%Y-%m-%d")) for x in range(0, 11)]
 
+#Link das apis - 1
+# API dos voos
 URLF = "http://lmpinto.eu.pythonanywhere.com/roundtrip/ygyghjgjh/"
+# API do tempo
 URLW = "https://lmpinto.eu.pythonanywhere.com/v1/forecast.json?"
 
+# formatar data
 def format_date(date_str):
     # Parse the input date string
     date = datetime.fromisoformat(date_str[:-6])
 
     # Format the date string as "YYYY-MM-DD HHMM"
     return date.strftime("%Y-%m-%d %H%M")
-    
+  
+# obter metereologia das proximas 2 semanas das cidades da base de dados
 def getWeather():
     db = connect_db("BD.db")
     locations = [location[1] for location in db.execute("SELECT * FROM locations").fetchall()]
@@ -73,6 +78,7 @@ def getWeather():
     db.close()
     return weather_data
     
+# obter voos de uma location para todas as opcoes possiveis  
 def getFlights(location:str, cost:int):
     """_summary_
 
@@ -125,6 +131,7 @@ def getFlights(location:str, cost:int):
     db.close()
     return roundtrips, legs_data
 
+# obter detalhes de uma viagem, ou várias viagens, a partir do seu ID
 def getDetails(viagem_ids:list):
     """
     Obter detalhes de uma viagem, ou várias viagens, a partir do seu ID.
@@ -157,6 +164,7 @@ def getDetails(viagem_ids:list):
     db.close()
     return trips
 
+# filtrar viagens para localização, companhia aérea e número de dias de sol
 def filterTrips(location, airline, days_of_sun):
     trips, _ = getFlights(location, 999999999999)
     trips = getDetails([trip["id"] for trip in trips])
@@ -174,12 +182,18 @@ def filterTrips(location, airline, days_of_sun):
                 
     return filtered_trips
 
+# filtrar viagens por destino mais barato
 def filterTripsDiversify(trips: list):
     filtered_trips = getDetails(trips)
 
     return filtered_trips
 
+# 2
+# ------------------------------ ROTAS ------------------------------
+
+#rota search
 @app.route('/search', methods=['GET'])
+#função search da rota search
 def search():
     location = request.args.get('location')
     cost = request.args.get('cost')
@@ -189,7 +203,9 @@ def search():
     flights = getDetails(flight_ids)
     return jsonify(flights)
 
+# rota filter
 @app.route('/filter', methods=['GET'])
+# função filter da rota filter
 def filter():
     location = request.args.get('location')
     airline = request.args.get('airline')
@@ -205,8 +221,9 @@ def filter():
     else:
         return jsonify("Viagem não encontrada!")
 
-#passar para a funcao filterTripsDiversity  
+# rota filter/diversify 
 @app.route('/filter/diversify', methods=['GET'])
+# função filter_diversify da rota filter/diversify
 def filter_diversify():       
     trip_ids = request.args.getlist('trip_ids')[0].split(',')
     trips = getDetails(trip_ids)
@@ -221,8 +238,9 @@ def filter_diversify():
 
     return jsonify(list(filtered_trips.values()))
 
-
+# rota details
 @app.route('/details', methods=['GET'])
+# função details da rota details
 def details():
     viagem_id = [request.args.get('trip_id')]
     
